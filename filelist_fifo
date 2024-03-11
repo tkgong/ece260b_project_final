@@ -1,0 +1,7 @@
+./verilog/fifo_async.v
+./verilog/fifo_async_tb.v
+./verilog/b2g.v
+./verilog/sync_5b.v
+./verilog/fifo_mux_16_1.v
+./verilog/fifo_mux_8_1.v
+./verilog/fifo_mux_2_1.v
