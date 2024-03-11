@@ -257,7 +257,7 @@ $display("##### K data txt reading #####");
 /////////////////////////////////
 
 
-///// core1 K data txt reading /////
+///// core2 K data txt reading /////
 
 $display("##### K data txt reading #####");
 
@@ -437,7 +437,6 @@ $display("##### Kmem writing #####");
     mem_in_core2[6*bw-1:5*bw] = K_core2[q][5];
     mem_in_core2[7*bw-1:6*bw] = K_core2[q][6];
     mem_in_core2[8*bw-1:7*bw] = K_core2[q][7];
-
     #0.5 clk = 1'b1;  
 
   end
@@ -502,7 +501,7 @@ $display("##### K data loading to processor #####");
 ///// execution  /////
 $display("##### execute #####");
 
-  for (q=0; q<total_cycle + 50; q=q+1) begin
+  for (q=0; q<total_cycle + 16; q=q+1) begin
     #0.5 clk = 1'b0;  
     execute_core1 = 1;
     execute_core2 = 1; 
@@ -515,8 +514,6 @@ $display("##### execute #####");
     end
 
     #0.5 clk = 1'b1;  
-    $display("%h", array_out_core1);
-    $display("%h", array_out_core2);
   end
 
   #0.5 clk = 1'b0;  
