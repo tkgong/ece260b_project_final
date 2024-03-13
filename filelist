@@ -15,3 +15,4 @@
 ./verilog/sync_5b.v
 ./verilog/sfp_row.v
 ./verilog/fifo_mux.v
+./verilog/clockgating.v
