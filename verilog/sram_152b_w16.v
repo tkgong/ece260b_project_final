@@ -1,30 +1,30 @@
 // Created by prof. Mingu Kang @VVIP Lab in UCSD ECE department
 // Please do not spread this code without permission 
-module sram_160b_w16 (CLK, D, Q, CEN, WEN, A);
+module sram_152b_w16 (CLK, D, Q, CEN, WEN, A);
 
   input  CLK;
   input  WEN;
   input  CEN;
-  input  [159:0] D;
+  input  [151:0] D;
   input  [3:0] A;
-  output [159:0] Q;
+  output [151:0] Q;
 
-  reg [159:0] memory0;
-  reg [159:0] memory1;
-  reg [159:0] memory2;
-  reg [159:0] memory3;
-  reg [159:0] memory4;
-  reg [159:0] memory5;
-  reg [159:0] memory6;
-  reg [159:0] memory7;
-  reg [159:0] memory8;
-  reg [159:0] memory9;
-  reg [159:0] memory10;
-  reg [159:0] memory11;
-  reg [159:0] memory12;
-  reg [159:0] memory13;
-  reg [159:0] memory14;
-  reg [159:0] memory15;
+  reg [151:0] memory0;
+  reg [151:0] memory1;
+  reg [151:0] memory2;
+  reg [151:0] memory3;
+  reg [151:0] memory4;
+  reg [151:0] memory5;
+  reg [151:0] memory6;
+  reg [151:0] memory7;
+  reg [151:0] memory8;
+  reg [151:0] memory9;
+  reg [151:0] memory10;
+  reg [151:0] memory11;
+  reg [151:0] memory12;
+  reg [151:0] memory13;
+  reg [151:0] memory14;
+  reg [151:0] memory15;
 
   reg [3:0] add_q;
 

@@ -4,7 +4,8 @@
 ./verilog/mac_col.v
 ./verilog/mac_array.v
 ./verilog/mac.v
-./verilog/sram_w16.v
+./verilog/sram_64b_w16.v
+./verilog/sram_152b_w16.v
 ./verilog/ofifo.v
 ./verilog/fifo_depth16.v
 ./verilog/fifo_mux_16_1.v

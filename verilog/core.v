@@ -98,7 +98,7 @@ clockgating clk_gate_inst_qmem (
         .en(qmem_rd||qmem_wr),
         .gclk(qmem_clk)
 );
-sram_w16 #(.sram_bit(pr*bw)) qmem_instance (
+sram_64b_w16 qmem_instance (
         .CLK(qmem_clk),
         .D(mem_in),
         .Q(qmem_out),
@@ -113,7 +113,7 @@ clockgating clk_gate_inst_kmem (
         .gclk(kmem_clk)
 );
 
-sram_w16 #(.sram_bit(pr*bw)) kmem_instance (
+sram_64b_w16 kmem_instance (
         .CLK(kmem_clk),
         .D(mem_in),
         .Q(kmem_out),
@@ -128,7 +128,7 @@ clockgating clk_gate_inst_pmem (
         .gclk(pmem_clk)
 );
 
-sram_w16 #(.sram_bit(col*bw_psum)) psum_mem_instance (
+sram_152b_w16 psum_mem_instance (
         .CLK(pmem_clk),
         .D(pmem_in),
         .Q(pmem_out),
@@ -171,7 +171,7 @@ clockgating clk_gate_inst_norm (
         .gclk(norm_mem_clk)
 );
 
-sram_w16#(.sram_bit(col*bw_psum)) norm_mem_instance(
+sram_152b_w16 norm_mem_instance(
         .CLK(norm_mem_clk),
         .D(norm_in),
         .Q(norm_out),
