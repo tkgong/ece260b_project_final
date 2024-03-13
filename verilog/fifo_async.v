@@ -1,9 +1,9 @@
-module fifo_async(wr_clk, rd_clk, in, fifo_out, fifo_empty, fifo_full, rd_rstn, wr_rstn, wr, rd);
+module fifo_async(wr_clk, rd_clk, in, fifo_out, fifo_empty, fifo_full, rd_rst, wr_rst, wr, rd);
 parameter sum_bw = 23;
 parameter ptr_len = 4;
 
 input wr, rd;
-input rd_rstn, wr_rstn;
+input rd_rst, wr_rst;
 input wr_clk, rd_clk;
 input [sum_bw-1:0] in;
 output [sum_bw-1:0] fifo_out;
@@ -56,8 +56,8 @@ assign fifo_empty = empty;
 assign fifo_out = out_reg;
 // write operation
 
-always @(posedge wr_clk ) begin
-    if (!wr_rstn) wr_ptr <= 0;
+always @(posedge wr_clk or posedge wr_rst) begin
+    if (wr_rst) wr_ptr <= 0;
 
     else begin
         if (wr && !full) begin
@@ -89,8 +89,8 @@ end
 
 //read operation
 
-always @(posedge rd_clk ) begin
-    if (!rd_rstn) rd_ptr <=5'b00000;
+always @(posedge rd_clk or posedge rd_rst) begin
+    if (rd_rst) rd_ptr <=5'b00000;
 
     else begin
         if ((rd==1) && (empty == 0)) begin

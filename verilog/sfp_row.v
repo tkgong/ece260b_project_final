@@ -105,8 +105,8 @@ fifo_async #(.sum_bw(bw_psum+4)) fifo_inst_ext(
   .fifo_empty(fifo_empty),
   .fifo_full(fifo_full),
   .wr(fifo_wr),
-  .wr_rstn(~reset),
-  .rd_rstn(~reset),
+  .wr_rst(reset),
+  .rd_rst(reset),
   .rd(fifo_ext_rd)
 );
 reg fifo_wr_1;
@@ -119,7 +119,7 @@ fifo_depth16 #(.bw(bw_psum+4)) fifo_inst_sum (
   .wr(wr_sum),
   .reset(reset)
 );
-  always @ (posedge clk) begin
+  always @ (posedge clk or posedge reset) begin
     if (reset) begin
       fifo_wr <= 0;
     end

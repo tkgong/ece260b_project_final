@@ -43,7 +43,7 @@ always @(*) begin
    end
 end
 
-always @ (posedge clk) begin
+always @ (posedge clk or posedge reset) begin
   if (reset) begin
     cnt_q <= 0;
     load_ready_q <= 1;

@@ -1,9 +1,10 @@
-module mac(a, b, out, clk);
+module mac(a, b, out, clk, reset);
 parameter  pr = 8;
 parameter bw =8;
 parameter bw_psum = 2*bw+3;
 input [pr*bw-1:0] a;
 input [pr*bw-1:0] b;
+input reset;
 input clk;
 output [bw_psum-1:0] out;
 
@@ -29,16 +30,31 @@ reg [2*bw-1:0] product0_reg,product1_reg,product2_reg,product3_reg, product4_reg
 reg [bw_psum -1:0] out_reg;
 wire [bw_psum-1:0] psum;
 
-always @(posedge clk ) begin
-	product0_reg <= product0;
-	product1_reg <= product1;
-	product2_reg <= product2;
-	product3_reg <= product3;
-	product4_reg <= product4;
-	product5_reg <= product5;
-	product6_reg <= product6;
-	product7_reg <= product7;
-    out_reg <= psum;
+always @(posedge clk or posedge reset) begin
+	if (reset) begin
+		product0_reg <= 0;
+		product1_reg <= 0;
+		product2_reg <= 0;
+		product3_reg <= 0;
+		product4_reg <= 0;
+		product5_reg <= 0;
+		product6_reg <= 0;
+		product7_reg <= 0;
+		out_reg <= 0;
+	end
+	
+	else begin
+		product0_reg <= product0;
+		product1_reg <= product1;
+		product2_reg <= product2;
+		product3_reg <= product3;
+		product4_reg <= product4;
+		product5_reg <= product5;
+		product6_reg <= product6;
+		product7_reg <= product7;
+		out_reg <= psum;
+	end
+		
 end
 
 assign psum = {{(4){product0_reg[2*bw-1]}},product0_reg	}
