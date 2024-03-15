@@ -13,7 +13,7 @@ output signed [pr*bw-1:0] q_out;
 input  clk, reset;
 input  [1:0] i_inst; // [1]: execute, [0]: load 
 output [1:0] o_inst; // [1]: execute, [0]: load 
-output reg fifo_wr;
+output fifo_wr;
 reg    load_ready_q;
 reg    [3:0] cnt_q;
 reg    [1:0] inst_q;
@@ -28,7 +28,7 @@ wire  signed [bw_psum-1:0] psum;
 assign o_inst = inst_q[1]? inst_2q : inst_q;
 assign q_out  = inst_q[1]? query_q_delayed: query_q;
 assign out = psum;
-
+assign fifo_wr = inst_4q[1];
 mac #(.bw(bw), .bw_psum(bw_psum), .pr(pr)) mac_instance (
         .a(query_q), 
         .b(key_q),
@@ -36,12 +36,7 @@ mac #(.bw(bw), .bw_psum(bw_psum), .pr(pr)) mac_instance (
     .clk(clk)
 ); 
 
-always @(*) begin
-   if (inst_q[1]) fifo_wr = inst_4q[1];
-   else begin 
-    fifo_wr = inst_3q[1];
-   end
-end
+
 
 always @ (posedge clk or posedge reset) begin
   if (reset) begin
