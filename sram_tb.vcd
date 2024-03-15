@@ -1,0 +1,147 @@
+$date
+	Fri Mar 15 14:35:33 2024
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module sram_w16_doubleBuffer_b64_tb $end
+$var wire 64 ! Q [63:0] $end
+$var reg 4 " A [3:0] $end
+$var reg 1 # CEN_EVEN $end
+$var reg 1 $ CEN_ODD $end
+$var reg 1 % CLK $end
+$var reg 64 & D [63:0] $end
+$var reg 1 ' WEN_EVEN $end
+$var reg 1 ( WEN_ODD $end
+$scope module uut $end
+$var wire 4 ) A [3:0] $end
+$var wire 1 # CEN_EVEN $end
+$var wire 1 $ CEN_ODD $end
+$var wire 1 % CLK $end
+$var wire 64 * D [63:0] $end
+$var wire 64 + Q [63:0] $end
+$var wire 1 ' WEN_EVEN $end
+$var wire 1 ( WEN_ODD $end
+$var reg 3 , A_EVEN [2:0] $end
+$var reg 3 - A_ODD [2:0] $end
+$scope module sram_w8_inst_even $end
+$var wire 3 . A [2:0] $end
+$var wire 1 # CEN $end
+$var wire 1 % CLK $end
+$var wire 64 / D [63:0] $end
+$var wire 1 ' WEN $end
+$var reg 64 0 Q [63:0] $end
+$var reg 64 1 memory0 [63:0] $end
+$var reg 64 2 memory1 [63:0] $end
+$var reg 64 3 memory2 [63:0] $end
+$var reg 64 4 memory3 [63:0] $end
+$var reg 64 5 memory4 [63:0] $end
+$var reg 64 6 memory5 [63:0] $end
+$var reg 64 7 memory6 [63:0] $end
+$var reg 64 8 memory7 [63:0] $end
+$upscope $end
+$scope module sram_w8_inst_odd $end
+$var wire 3 9 A [2:0] $end
+$var wire 1 $ CEN $end
+$var wire 1 % CLK $end
+$var wire 64 : D [63:0] $end
+$var wire 1 ( WEN $end
+$var reg 64 ; Q [63:0] $end
+$var reg 64 < memory0 [63:0] $end
+$var reg 64 = memory1 [63:0] $end
+$var reg 64 > memory2 [63:0] $end
+$var reg 64 ? memory3 [63:0] $end
+$var reg 64 @ memory4 [63:0] $end
+$var reg 64 A memory5 [63:0] $end
+$var reg 64 B memory6 [63:0] $end
+$var reg 64 C memory7 [63:0] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+$dumpvars
+bx C
+bx B
+bx A
+bx @
+bx ?
+bx >
+bx =
+bx <
+bx ;
+bx :
+bx 9
+bx 8
+bx 7
+bx 6
+bx 5
+bx 4
+bx 3
+bx 2
+bx 1
+bx 0
+bx /
+bx .
+bx -
+bx ,
+bx +
+bx *
+bx )
+x(
+x'
+bx &
+x%
+x$
+x#
+bx "
+bx !
+$end
+#500
+b0 ,
+b0 .
+1(
+1$
+1'
+1#
+b0 "
+b0 )
+b0 &
+b0 *
+b0 /
+b0 :
+0%
+#1000
+1%
+#1500
+0'
+0#
+b1010010110100101101001011010010110100101101001011010010110100101 &
+b1010010110100101101001011010010110100101101001011010010110100101 *
+b1010010110100101101001011010010110100101101001011010010110100101 /
+b1010010110100101101001011010010110100101101001011010010110100101 :
+0%
+#2000
+b1010010110100101101001011010010110100101101001011010010110100101 1
+1%
+#2500
+1'
+1#
+#3500
+b0 -
+b0 9
+0(
+0$
+b1000 "
+b1000 )
+0%
+#4000
+b1010010110100101101001011010010110100101101001011010010110100101 <
+1%
+#4500
+1(
+1$
+#15000

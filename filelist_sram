@@ -1,0 +1,3 @@
+./verilog/sram_w8.v
+./verilog/sram_w16_doubleBuffered_b64.v
+./verilog/sram_doubleBuffered_tb.v
