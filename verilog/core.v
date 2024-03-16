@@ -5,12 +5,12 @@ module core (
         input clk_ext_core, 
         input [bw_psum+3:0] sum_in,
         input [pr*bw-1:0] mem_in, 
-        input [16:0] inst, 
+        input [28:0] inst, 
         input reset, 
-        input [3:0] norm_mem_addr, 
-        input norm_mem_rd, 
-        input norm_mem_wr,
-        input [1:0] sfp_inst,
+        //input [3:0] norm_mem_addr, 
+        //input norm_mem_rd, 
+        //input norm_mem_wr,
+        //input [1:0] sfp_inst,
         input fifo_ext_rd,
         output [bw_psum*col-1:0] out,
         output [bw_psum+3:0] sum_out, 
@@ -35,26 +35,56 @@ wire  [col-1:0] fifo_wr;
 wire  ofifo_rd;
 wire [3:0] qkmem_add;
 wire [3:0] pmem_add;
+wire mac_loadk, mac_exe;
+wire  qmem_even_rd;
+wire  qmem_even_wr;
+wire  qmem_odd_wr;
+wire qmem_odd_rd; 
+wire  kmem_even_rd;
+wire kmem_odd_rd;
+wire  kmem_even_wr; 
+wire kmem_odd_wr;
+wire pmem_wr;
+wire pmem_rd;
+wire norm_mem_wr;
+wire norm_mem_rd;
+wire [3:0] norm_mem_addr;
+wire [1:0] sfp_inst;
 
-wire  qmem_rd;
-wire  qmem_wr; 
-wire  kmem_rd;
-wire  kmem_wr; 
-wire  pmem_rd;
-wire  pmem_wr; 
+// assign ofifo_rd = inst[16];
+// assign qkmem_add = inst[15:12];
+// assign pmem_add = inst[11:8];
 
-assign ofifo_rd = inst[16];
-assign qkmem_add = inst[15:12];
-assign pmem_add = inst[11:8];
+// assign qmem_rd = inst[5];
+// assign qmem_wr = inst[4];
+// assign kmem_rd = inst[3];
+// assign kmem_wr = inst[2];
+// assign pmem_rd = inst[1];
+// assign pmem_wr = inst[0];
 
-assign qmem_rd = inst[5];
-assign qmem_wr = inst[4];
-assign kmem_rd = inst[3];
-assign kmem_wr = inst[2];
-assign pmem_rd = inst[1];
 assign pmem_wr = inst[0];
+assign pmem_rd = inst[1];
+assign kmem_even_wr = inst[2];
+assign kmem_odd_wr = inst[3];
+assign kmem_even_rd = inst[4];
+assign kmem_odd_rd = inst[5];
+assign qmem_even_wr = inst[6];
+assign qmem_odd_wr = inst[7];
+assign qmem_even_rd = inst[8];
+assign qmem_odd_rd = inst[9];
+assign pmem_add = inst[13:10];
+assign qkmem_add = inst[17:14];
+assign ofifo_rd = inst[18];
+assign mac_loadk = inst[19];
+assign mac_exe = inst[20];
+assign norm_mem_wr = inst[21];
+assign norm_mem_rd = inst[22];
+assign norm_mem_addr = inst[26:23];
+assign sfp_inst[0] = inst[27];
+assign sfp_inst[1] = inst[28];
 
-assign mac_in  = inst[6] ? kmem_out : qmem_out;
+
+assign mac_in  = inst[19] ? kmem_out : qmem_out;
 assign pmem_in = fifo_out;
 assign out = norm_mem_rd? norm_out: pmem_out;
 assign out_sfp = sfp_out;
@@ -63,14 +93,14 @@ wire mac_array_clk;
 
 clockgating clk_gate_inst_mac(
         .clk(clk_this_core), 
-        .en((inst[7]|| inst[6]||fifo_wr)), 
+        .en((inst[20]|| inst[19]||fifo_wr)), 
         .gclk(mac_array_clk));
 
 mac_array #(.bw(bw), .bw_psum(bw_psum), .col(col), .pr(pr)) mac_array_instance (
         .in(mac_in), 
         .clk(mac_array_clk), 
         .reset(reset), 
-        .inst(inst[7:6]),     
+        .inst(inst[20:19]),     
         .fifo_wr(fifo_wr),     
 	.out(array_out)
 );
@@ -95,45 +125,49 @@ ofifo #(.bw(bw_psum), .col(col))  ofifo_inst (
 wire qmem_clk;
 clockgating clk_gate_inst_qmem (
         .clk(clk_this_core),
-        .en(qmem_rd||qmem_wr),
+        .en(qmem_even_rd||qmem_even_wr||qmem_odd_rd||qmem_even_wr),
         .gclk(qmem_clk)
 );
-sram_64b_w16 qmem_instance (
+sram_w16_doubleBuffered_b64 qmem_instance (
         .CLK(qmem_clk),
         .D(mem_in),
         .Q(qmem_out),
-        .CEN(!(qmem_rd||qmem_wr)),
-        .WEN(!qmem_wr), 
+        .CEN_EVEN(!(qmem_even_rd||qmem_even_wr)),
+        .WEN_EVEN(!qmem_even_wr), 
+        .CEN_ODD(!(qmem_odd_rd || qmem_odd_wr)),
+        .WEN_ODD(!qmem_odd_wr),
         .A(qkmem_add)
 );
 wire kmem_clk;
 clockgating clk_gate_inst_kmem (
         .clk(clk_this_core),
-        .en(kmem_rd||kmem_wr),
+        .en(kmem_even_rd || kmem_odd_rd || kmem_even_wr || kmem_odd_wr),
         .gclk(kmem_clk)
 );
 
-sram_64b_w16 kmem_instance (
+sram_w16_doubleBuffered_b64 kmem_instance (
         .CLK(kmem_clk),
         .D(mem_in),
         .Q(kmem_out),
-        .CEN(!(kmem_rd||kmem_wr)),
-        .WEN(!kmem_wr), 
+        .CEN_EVEN(!(kmem_even_rd||kmem_even_wr)),
+        .WEN_EVEN(!kmem_even_wr), 
+        .CEN_ODD(!(kmem_odd_rd || kmem_odd_wr)),
+        .WEN_ODD(!kmem_odd_wr),
         .A(qkmem_add)
 );
 wire pmem_clk;
 clockgating clk_gate_inst_pmem (
         .clk(clk_this_core),
-        .en(pmem_rd||pmem_wr),
+        .en(pmem_even_rd||pmem_odd_wr || pmem_even_wr || pmem_odd_wr),
         .gclk(pmem_clk)
 );
 
-sram_152b_w16 psum_mem_instance (
+sram_152b_w8 psum_mem_instance (
         .CLK(pmem_clk),
         .D(pmem_in),
         .Q(pmem_out),
-        .CEN(!(pmem_rd||pmem_wr)),
-        .WEN(!pmem_wr), 
+        .CEN(!(pmem_wr || pmem_rd)),
+        .WEN(~pmem_wr),
         .A(pmem_add)
 );
 
@@ -171,7 +205,7 @@ clockgating clk_gate_inst_norm (
         .gclk(norm_mem_clk)
 );
 
-sram_152b_w16 norm_mem_instance(
+sram_152b_w8 norm_mem_instance(
         .CLK(norm_mem_clk),
         .D(norm_in),
         .Q(norm_out),
@@ -179,11 +213,5 @@ sram_152b_w16 norm_mem_instance(
         .WEN(!(norm_mem_wr)),
         .A(norm_mem_addr)
 );
-
-  //////////// For printing purpose ////////////
-//  always @(posedge clk_this_core) begin
-//      if(pmem_wr)
-//         $display("Memory write to PSUM mem add %x %x for core %d", pmem_add, pmem_in, core_num); 
-//  end
 
 endmodule

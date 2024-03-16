@@ -44,84 +44,96 @@ reg reset = 1;
 reg clk = 0;
 reg [pr*bw-1:0] mem_in_core1; 
 reg [pr*bw-1:0] mem_in_core2; 
-reg ofifo_rd_core1 = 0;
-reg ofifo_rd_core2 = 0;
-wire [33:0] inst; 
-reg qmem_rd_core1 = 0;
-reg qmem_wr_core1 = 0; 
-reg kmem_rd_core1 = 0; 
-reg kmem_wr_core1 = 0;
-reg pmem_rd_core1 = 0; 
-reg pmem_wr_core1 = 0; 
-reg execute_core1 = 0;
-reg load_core1 = 0;
-reg qmem_rd_core2 = 0;
-reg qmem_wr_core2 = 0; 
-reg kmem_rd_core2 = 0; 
-reg kmem_wr_core2 = 0;
-reg pmem_rd_core2 = 0; 
-reg pmem_wr_core2 = 0; 
-reg execute_core2 = 0;
-reg load_core2= 0;
-
-reg [3:0] qkmem_add_core1 = 0;
-reg [3:0] pmem_add_core1 = 0;
-
-reg [3:0] qkmem_add_core2 = 0;
-reg [3:0] pmem_add_core2 = 0;
+wire [57:0] inst;
 
 
-reg wr_norm_core1 = 0;
-reg wr_norm_core2 = 0;
-wire [col*bw_psum-1:0] out_core1;
-wire [col*bw_psum-1:0] out_core2;
-assign inst[16] = ofifo_rd_core1;
-assign inst[15:12] = qkmem_add_core1;
-assign inst[11:8]  = pmem_add_core1;
-assign inst[7] = execute_core1;
-assign inst[6] = load_core1;
-assign inst[5] = qmem_rd_core1;
-assign inst[4] = qmem_wr_core1;
-assign inst[3] = kmem_rd_core1;
-assign inst[2] = kmem_wr_core1;
-assign inst[1] = pmem_rd_core1;
+reg pmem_wr_core1 = 0; // inst[0]
+reg pmem_rd_core1 = 0;//inst[3];
+reg kmem_even_wr_core1 =0; //inst[4];
+reg kmem_odd_wr_core1 =0;// inst[5];
+reg kmem_even_rd_core1 =0;// inst[6];
+reg  kmem_odd_rd_core1 =0;// inst[7];
+reg qmem_even_wr_core1 =0;// inst[8];
+reg qmem_odd_wr_core1 = 0;//inst[9];
+reg qmem_even_rd_core1 =0;// inst[10];
+reg qmem_odd_rd_core1 = 0;//inst[11];
+reg [3:0] pmem_add_core1 = 0;//inst[15:12];
+reg [3:0] qkmem_add_core1 =0;// inst[19:16];
+reg ofifo_rd_core1 = 0;//inst[20];
+reg mac_loadk_core1 =0; //inst[21];
+reg mac_exe_core1 = 0;//inst[22];
+reg norm_mem_wr_core1 = 0;//inst[23];
+reg norm_mem_rd_core1 =0; //inst[24];
+reg [3:0] norm_mem_addr_core1 = 0;//inst[28:25];
+reg sfp_acc_core1 = 0;//inst[29];
+reg sfp_div_core1 = 0;//inst[30];
+
+reg pmem_wr_core2 = 0; // inst[31]
+reg pmem_rd_core2 = 0;//inst[34];
+reg kmem_even_wr_core2 =0; //inst[35];
+reg kmem_odd_wr_core2 =0;// inst[36];
+reg kmem_even_rd_core2 =0;// inst[37];
+reg  kmem_odd_rd_core2 =0;// inst[38];
+reg qmem_even_wr_core2 =0;// inst[39];
+reg qmem_odd_wr_core2 = 0;//inst[40];
+reg qmem_even_rd_core2 =0;// inst[41];
+reg qmem_odd_rd_core2 = 0;//inst[42];
+reg [3:0] pmem_add_core2 = 0;//inst[46:43];
+reg [3:0] qkmem_add_core2 =0;// inst[50:47];
+reg ofifo_rd_core2 = 0;//inst[51];
+reg mac_loadk_core2 =0; //inst[52];
+reg mac_exe_core2 = 0;//inst[53];
+reg norm_mem_wr_core2 = 0;//inst[54];
+reg norm_mem_rd_core2 =0; //inst[55];
+reg [3:0] norm_mem_addr_core2 = 0;//inst[59:56];
+reg sfp_acc_core2 = 0;//inst[60];
+reg sfp_div_core2 = 0;
+
+
+
 assign inst[0] = pmem_wr_core1;
+assign inst[1] = pmem_rd_core1;
+assign inst[2] = kmem_even_wr_core1;
+assign inst[3] = kmem_odd_wr_core1;
+assign inst[4] = kmem_even_rd_core1;
+assign inst[5] = kmem_odd_rd_core1;
+assign inst[6] = qmem_even_wr_core1;
+assign inst[7] = qmem_odd_wr_core1;
+assign inst[8] = qmem_even_rd_core1;
+assign inst[9] = qmem_odd_rd_core1;
 
-assign inst[33] = ofifo_rd_core2;
-assign inst[32:29] = qkmem_add_core2;
-assign inst[28:25]  = pmem_add_core2;
-assign inst[24] = execute_core2;
-assign inst[23] = load_core2;
-assign inst[22] = qmem_rd_core2;
-assign inst[21] = qmem_wr_core2;
-assign inst[20] = kmem_rd_core2;
-assign inst[19] = kmem_wr_core2;
-assign inst[18] = pmem_rd_core2;
-assign inst[17] = pmem_wr_core2;
+assign inst[13:10] = pmem_add_core1;
+assign inst[17:14] = qkmem_add_core1;
+assign inst[18] = ofifo_rd_core1;
+assign inst[19] = mac_loadk_core1;
+assign inst[20] = mac_exe_core1;
+assign inst[21] = norm_mem_wr_core1;
+assign inst[22] = norm_mem_rd_core1;
+assign inst[26:23] = norm_mem_addr_core1;
+assign inst[27] = sfp_acc_core1;
+assign inst[28] = sfp_div_core1;
 
-reg [bw_psum-1:0] temp5b;
-reg [bw_psum+3:0] temp_sum;
-reg [bw_psum*col-1:0] temp16b;
+assign inst[29] = pmem_wr_core2;
+assign inst[30] = pmem_rd_core2;
+assign inst[31] = kmem_even_wr_core2;
+assign inst[32] = kmem_odd_wr_core2;
+assign inst[33] = kmem_even_rd_core2;
+assign inst[34] = kmem_odd_rd_core2;
+assign inst[35] = qmem_even_wr_core2;
+assign inst[36] = qmem_odd_wr_core2;
+assign inst[37] = qmem_even_rd_core2;
+assign inst[38] = qmem_odd_rd_core2;
+assign inst[42:39] = pmem_add_core2;
+assign inst[46:43] = qkmem_add_core2;
+assign inst[47] = ofifo_rd_core2;
+assign inst[48] = mac_loadk_core2;
+assign inst[49] = mac_exe_core2;
+assign inst[50] = norm_mem_wr_core2;
+assign inst[51] = norm_mem_rd_core2;
+assign inst[55:52] = norm_mem_addr_core2;
+assign inst[56] = sfp_acc_core2;
+assign inst[57] = sfp_div_core2;
 
-wire [3:0] sfp_inst;
-reg acc_core1 = 0; 
-reg div_core1 = 0; 
-reg acc_core2 = 0;
-reg div_core2 = 0;
-assign sfp_inst[0] = acc_core1;
-assign sfp_inst[1] = div_core1;
-assign sfp_inst[2] = acc_core2;
-assign sfp_inst[3] = div_core2;
-wire [7:0] norm_mem_addr;
-reg [3:0] norm_mem_addr_core1 = 0;
-reg [3:0] norm_mem_addr_core2 = 0;
-assign norm_mem_addr[3:0] = norm_mem_addr_core1;
-assign norm_mem_addr[7:4] = norm_mem_addr_core2;
-wire [1:0] norm_mem_rd;
-reg norm_mem_rd_core1 = 0;
-reg norm_mem_rd_core2 = 0;
-assign norm_mem_rd[0] = norm_mem_rd_core1;
-assign norm_mem_rd[1] = norm_mem_rd_core2;
 wire [1:0] async_interface_rd;
 reg fifo_ext_rd_core1 = 0;
 reg fifo_ext_rd_core2 = 0;
@@ -132,11 +144,102 @@ reg wr_sum_core1 = 0;
 reg wr_sum_core2 = 0;
 assign async_interface_wr[0] = wr_sum_core1;
 assign async_interface_wr[1] = wr_sum_core2;
-wire [1:0] norm_mem_wr;
-reg norm_mem_wr_core1 = 0;
-reg norm_mem_wr_core2 = 0;
-assign norm_mem_wr[0] = norm_mem_wr_core1;
-assign norm_mem_wr[1] = norm_mem_wr_core2;
+
+
+
+
+
+// reg ofifo_rd_core1 = 0;
+// reg ofifo_rd_core2 = 0;
+// wire [33:0] inst; 
+// reg qmem_rd_core1 = 0;
+// reg qmem_wr_core1 = 0; 
+// reg kmem_rd_core1 = 0; 
+// reg kmem_wr_core1 = 0;
+// reg pmem_rd_core1 = 0; 
+// reg pmem_wr_core1 = 0; 
+// reg execute_core1 = 0;
+// reg load_core1 = 0;
+// reg qmem_rd_core2 = 0;
+// reg qmem_wr_core2 = 0; 
+// reg kmem_rd_core2 = 0; 
+// reg kmem_wr_core2 = 0;
+// reg pmem_rd_core2 = 0; 
+// reg pmem_wr_core2 = 0; 
+// reg execute_core2 = 0;
+// reg load_core2= 0;
+// reg [3:0] qkmem_add_core1 = 0;
+// reg [3:0] pmem_add_core1 = 0;
+// reg [3:0] qkmem_add_core2 = 0;
+// reg [3:0] pmem_add_core2 = 0;
+// reg wr_norm_core1 = 0;
+// reg wr_norm_core2 = 0;
+wire [col*bw_psum-1:0] out_core1;
+wire [col*bw_psum-1:0] out_core2;
+// assign inst[16] = ofifo_rd_core1;
+// assign inst[15:12] = qkmem_add_core1;
+// assign inst[11:8]  = pmem_add_core1;
+// assign inst[7] = execute_core1;
+// assign inst[6] = load_core1;
+// assign inst[5] = qmem_rd_core1;
+// assign inst[4] = qmem_wr_core1;
+// assign inst[3] = kmem_rd_core1;
+// assign inst[2] = kmem_wr_core1;
+// assign inst[1] = pmem_rd_core1;
+// assign inst[0] = pmem_wr_core1;
+
+// assign inst[33] = ofifo_rd_core2;
+// assign inst[32:29] = qkmem_add_core2;
+// assign inst[28:25]  = pmem_add_core2;
+// assign inst[24] = execute_core2;
+// assign inst[23] = load_core2;
+// assign inst[22] = qmem_rd_core2;
+// assign inst[21] = qmem_wr_core2;
+// assign inst[20] = kmem_rd_core2;
+// assign inst[19] = kmem_wr_core2;
+// assign inst[18] = pmem_rd_core2;
+// assign inst[17] = pmem_wr_core2;
+// wire [3:0] sfp_inst;
+// reg acc_core1 = 0; 
+// reg div_core1 = 0; 
+// reg acc_core2 = 0;
+// reg div_core2 = 0;
+// assign sfp_inst[0] = acc_core1;
+// assign sfp_inst[1] = div_core1;
+// assign sfp_inst[2] = acc_core2;
+// assign sfp_inst[3] = div_core2;
+// wire [7:0] norm_mem_addr;
+// reg [3:0] norm_mem_addr_core1 = 0;
+// reg [3:0] norm_mem_addr_core2 = 0;
+// assign norm_mem_addr[3:0] = norm_mem_addr_core1;
+// assign norm_mem_addr[7:4] = norm_mem_addr_core2;
+// wire [1:0] norm_mem_rd;
+// reg norm_mem_rd_core1 = 0;
+// reg norm_mem_rd_core2 = 0;
+// assign norm_mem_rd[0] = norm_mem_rd_core1;
+// assign norm_mem_rd[1] = norm_mem_rd_core2;
+// wire [1:0] async_interface_rd;
+// reg fifo_ext_rd_core1 = 0;
+// reg fifo_ext_rd_core2 = 0;
+// assign async_interface_rd[0] = fifo_ext_rd_core1;
+// assign async_interface_rd[1] = fifo_ext_rd_core2;
+// wire [1:0] async_interface_wr;
+// reg wr_sum_core1 = 0;
+// reg wr_sum_core2 = 0;
+// assign async_interface_wr[0] = wr_sum_core1;
+// assign async_interface_wr[1] = wr_sum_core2;
+// wire [1:0] norm_mem_wr;
+// reg norm_mem_wr_core1 = 0;
+// reg norm_mem_wr_core2 = 0;
+// assign norm_mem_wr[0] = norm_mem_wr_core1;
+// assign norm_mem_wr[1] = norm_mem_wr_core2;
+
+
+
+reg [bw_psum-1:0] temp5b;
+reg [bw_psum+3:0] temp_sum;
+reg [bw_psum*col-1:0] temp16b;
+
 
 reg signed [bw_psum-1:0] temp5b_core1, temp5b_core2;
 reg signed [bw_psum-1:0] abs_temp5b_core1, abs_temp5b_core2;
@@ -163,14 +266,14 @@ fullchip#(.bw(bw), .bw_psum(bw_psum), .col(col), .pr(pr)) fullchip_instance (
   .reset(reset),
   .out_core1(out_core1),
   .out_core2(out_core2),
-  .sfp_inst(sfp_inst),
-  .norm_mem_addr(norm_mem_addr),
-  .norm_mem_rd(norm_mem_rd),
+  //.sfp_inst(sfp_inst),
+  //.norm_mem_addr(norm_mem_addr),
+  //.norm_mem_rd(norm_mem_rd),
   .async_interface_rd(async_interface_rd),
   .async_interface_wr(async_interface_wr),
   .out_sfp_core1(out_sfp_core1),
   .out_sfp_core2(out_sfp_core2),
-  .norm_mem_wr(norm_mem_wr),
+  //.norm_mem_wr(norm_mem_wr),
   .array_out_core1(array_out_core1),
   .array_out_core2(array_out_core2)
 );
@@ -363,7 +466,7 @@ $display("##### Qmem writing  #####");
   for (q=0; q<total_cycle; q=q+1) begin
 
     #0.5 clk = 1'b0;  
-    qmem_wr_core1 = 1; qmem_wr_core2 = 1;  
+    qmem_even_wr_core1 = 1; qmem_even_wr_core2 = 1;  
     if (q>0) begin 
       qkmem_add_core1 = qkmem_add_core1 + 1;
       qkmem_add_core2 = qkmem_add_core2 + 1;
@@ -395,8 +498,8 @@ $display("##### Qmem writing  #####");
 
 
   #0.5 clk = 1'b0;  
-  qmem_wr_core1 = 0;
-  qmem_wr_core2 = 0; 
+  qmem_even_wr_core1 = 0;
+  qmem_even_wr_core2 = 0; 
   qkmem_add_core1 = 0;
   qkmem_add_core2 = 0;
   #0.5 clk = 1'b1;  
@@ -413,8 +516,8 @@ $display("##### Kmem writing #####");
   for (q=0; q<col; q=q+1) begin
 
     #0.5 clk = 1'b0;  
-    kmem_wr_core1 = 1;
-    kmem_wr_core2 = 1; 
+    kmem_even_wr_core1 = 1;
+    kmem_even_wr_core2 = 1; 
     if (q>0) 
     begin
       qkmem_add_core1 = qkmem_add_core1 + 1;
@@ -442,8 +545,8 @@ $display("##### Kmem writing #####");
   end
 
   #0.5 clk = 1'b0;  
-  kmem_wr_core1 = 0;
-  kmem_wr_core2 = 0;  
+  kmem_even_wr_core1 = 0;
+  kmem_even_wr_core2 = 0;  
   qkmem_add_core1 = 0;
   qkmem_add_core2 = 0;
   #0.5 clk = 1'b1;  
@@ -464,11 +567,11 @@ $display("##### K data loading to processor #####");
 
   for (q=0; q<col+1; q=q+1) begin
     #0.5 clk = 1'b0;  
-    load_core1 = 1;
-    load_core2 = 1; 
+    mac_loadk_core1 = 1;
+    mac_loadk_core2 = 1; 
     if (q==1) begin 
-      kmem_rd_core1 = 1;
-      kmem_rd_core2 = 1;
+      kmem_even_rd_core1 = 1;
+      kmem_even_rd_core2 = 1;
     end
     if (q>1) begin
        qkmem_add_core1 = qkmem_add_core1 + 1;
@@ -479,12 +582,12 @@ $display("##### K data loading to processor #####");
   end
 
   #0.5 clk = 1'b0;  
-  kmem_rd_core1 = 0; kmem_rd_core2 = 0; qkmem_add_core1 = 0; qkmem_add_core2 = 0;
+  kmem_even_rd_core1 = 0; kmem_even_rd_core2 = 0; qkmem_add_core1 = 0; qkmem_add_core2 = 0;
   #0.5 clk = 1'b1;  
 
   #0.5 clk = 1'b0;  
-  load_core1 = 0;
-  load_core2 = 0; 
+  mac_loadk_core1 = 0;
+  mac_loadk_core2 = 0; 
   #0.5 clk = 1'b1;  
 
 ///////////////////////////////////////////
@@ -501,28 +604,29 @@ $display("##### K data loading to processor #####");
 ///// execution  /////
 $display("##### execute #####");
 
-  for (q=0; q<total_cycle + 16; q=q+1) begin
+  for (q=0; q<2* total_cycle +2; q=q+1) begin
     #0.5 clk = 1'b0;  
-    execute_core1 = 1;
-    execute_core2 = 1; 
-    qmem_rd_core1 = 1;
-    qmem_rd_core2 = 1;
+    mac_exe_core1 = 1;
+    mac_exe_core2 = 1; 
+    qmem_even_rd_core1 = 1;
+    qmem_even_rd_core2 = 1;
 
-    if (q>0) begin
+    if (q>0 && q <8) begin
        qkmem_add_core1 = qkmem_add_core1 + 1;
        qkmem_add_core2 = qkmem_add_core2 + 1;
     end
+
 
     #0.5 clk = 1'b1;  
   end
 
   #0.5 clk = 1'b0;  
-  qmem_rd_core1 = 0; 
-  qmem_rd_core2 = 0; 
+  qmem_even_rd_core1 = 0; 
+  qmem_even_rd_core2 = 0; 
   qkmem_add_core1 = 0; 
   qkmem_add_core2 = 0; 
-  execute_core1 = 0; 
-  execute_core2 = 0;
+  mac_exe_core1 = 0; 
+  mac_exe_core2 = 0;
   #0.5 clk = 1'b1;  
 
 
@@ -540,7 +644,7 @@ $display("##### execute #####");
 
 $display("##### move ofifo to pmem #####");
 
-  for (q=0; q<total_cycle; q=q+1) begin
+  for (q=0; q<total_cycle + 1; q=q+1) begin
     #0.5 clk = 1'b0;  
     ofifo_rd_core1 = 1;
     ofifo_rd_core2 = 1; 
@@ -565,23 +669,22 @@ $display("##### move ofifo to pmem #####");
 /////////////////////Verify Multiplication Result////////////////////////////////////
 
 $display("Fectch core1 pmem content");
-for (q = 0; q<total_cycle+1; q=q+1) begin
+for (q = 0; q<total_cycle + 1; q=q+1) begin
   #0.5 clk = 1'b0;
   pmem_rd_core1 = 1;
-  if (q>0) begin
+  if (q>0 && q<8) begin
     pmem_add_core1 = pmem_add_core1 + 1;
   end
   #0.5 clk = 1'b1;
-  if (q>0) begin
+  if (q>0)
     $display("cycle%d, out is %h ", q, out_core1);
-  end
 end
 
 $display("Fectch core2 pmem content");
-for (q = 0; q<total_cycle+1; q=q+1) begin
+for (q = 0; q<total_cycle + 1; q=q+1) begin
   #0.5 clk = 1'b0;
   pmem_rd_core2 = 1;
-  if (q>0) begin
+  if (q>0 && q<8) begin
     pmem_add_core2 = pmem_add_core2 + 1;
   end
   #0.5 clk = 1'b1;
@@ -600,8 +703,8 @@ $display("##### normalize output #####");
   #0.5 clk = 1'b1;
 
   #0.5 clk = 1'b0;
-  acc_core1 = 1; 
-  acc_core2 = 1;
+  sfp_acc_core1 = 1; 
+  sfp_acc_core2 = 1;
   
   for(q=0; q<total_cycle + 1; q=q+1) begin
     pmem_add_core1 = pmem_add_core1 + 1;
@@ -610,8 +713,8 @@ $display("##### normalize output #####");
     #0.5 clk = 1'b0;
   end
 
-  acc_core1 = 0 ; div_core1 = 0; pmem_add_core1 = 0;
-  acc_core2 = 0 ; div_core2 = 0; pmem_add_core2 = 0;
+  sfp_acc_core1 = 0 ; sfp_div_core1 = 0; pmem_add_core1 = 0;
+  sfp_acc_core2 = 0 ; sfp_div_core2 = 0; pmem_add_core2 = 0;
   pmem_rd_core1 = 0; pmem_rd_core2 = 0;
   #0.5 clk = 1'b1;
 
@@ -644,15 +747,15 @@ $display("##### normalize output #####");
    for (q = 0; q< total_cycle +2;q=q+1) begin
     #0.5 clk = 1'b0;
     pmem_rd_core1 = 1; pmem_rd_core2 = 1;
-    div_core1 = 1; div_core2 = 1;
+    sfp_div_core1 = 1; sfp_div_core2 = 1;
     if (q>0) begin
       pmem_add_core1 = pmem_add_core1 + 1;
       pmem_add_core2 = pmem_add_core2 + 1;
     end
-    if (q> 1) begin
+    //if (q> 1) begin
     //$display("core 1: cycle: %1d, expected out is %h, acutal out is %h", q-1, norm_out_col_core1[q-2], out_sfp_core1);
     //$display("core2: cycle %1d, expected out is %h, actual out is %h", q-1, norm_out_col_core2[q-2], out_sfp_core2);
-    end
+    //end
 
     if (q>1) begin
       norm_mem_wr_core1 = 1; norm_mem_wr_core2 = 1;

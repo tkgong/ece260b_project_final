@@ -4,9 +4,9 @@
 ./verilog/mac_col.v
 ./verilog/mac_array.v
 ./verilog/mac.v
-./verilog/sram_64b_w16.v
-./verilog/sram_152b_w16.v
 ./verilog/ofifo.v
+./verilog/sram_w16_doubleBuffered_b64.v
+./verilog/sram_152b_w8.v
 ./verilog/fifo_depth16.v
 ./verilog/fifo_mux_16_1.v
 ./verilog/fifo_mux_8_1.v
@@ -17,3 +17,4 @@
 ./verilog/sfp_row.v
 ./verilog/fifo_mux.v
 ./verilog/clockgating.v
+./verilog/sram_w8.v

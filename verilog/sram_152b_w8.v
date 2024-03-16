@@ -1,6 +1,6 @@
 // Created by prof. Mingu Kang @VVIP Lab in UCSD ECE department
 // Please do not spread this code without permission 
-module sram_152b_w16 (CLK, D, Q, CEN, WEN, A);
+module sram_152b_w8 (CLK, D, Q, CEN, WEN, A);
 
   input  CLK;
   input  WEN;
