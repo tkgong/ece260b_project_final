@@ -50,18 +50,22 @@ wire norm_mem_wr;
 wire norm_mem_rd;
 wire [3:0] norm_mem_addr;
 wire [1:0] sfp_inst;
+wire mac_array_clk;
+wire ofifo_clk;
+wire qmem_clk;
+wire pmem_clk;
+wire [col*bw_psum-1:0] sfp_out;
+wire [col*bw_psum-1:0] sfp_in;
 
-// assign ofifo_rd = inst[16];
-// assign qkmem_add = inst[15:12];
-// assign pmem_add = inst[11:8];
+wire kmem_clk;
+wire sfp_clk_this_core, sfp_clk_other_core;
+wire [col*bw_psum-1:0] norm_in;
 
-// assign qmem_rd = inst[5];
-// assign qmem_wr = inst[4];
-// assign kmem_rd = inst[3];
-// assign kmem_wr = inst[2];
-// assign pmem_rd = inst[1];
-// assign pmem_wr = inst[0];
+wire [col*bw_psum-1:0] norm_out;
+wire norm_mem_clk;
 
+assign sfp_in = pmem_out;
+assign norm_in = sfp_out;
 assign pmem_wr = inst[0];
 assign pmem_rd = inst[1];
 assign kmem_even_wr = inst[2];
@@ -82,14 +86,13 @@ assign norm_mem_rd = inst[22];
 assign norm_mem_addr = inst[26:23];
 assign sfp_inst[0] = inst[27];
 assign sfp_inst[1] = inst[28];
-
+assign sfp_clk_other_core = clk_ext_core;
 
 assign mac_in  = inst[19] ? kmem_out : qmem_out;
 assign pmem_in = fifo_out;
 assign out = norm_mem_rd? norm_out: pmem_out;
 assign out_sfp = sfp_out;
 
-wire mac_array_clk;
 
 clockgating clk_gate_inst_mac(
         .clk(clk_this_core), 
@@ -105,7 +108,7 @@ mac_array #(.bw(bw), .bw_psum(bw_psum), .col(col), .pr(pr)) mac_array_instance (
 	.out(array_out)
 );
 
-wire ofifo_clk;
+
 clockgating clk_gate_inst_ofifo (
         .clk(clk_this_core),
         .en(fifo_wr || ofifo_rd),
@@ -122,7 +125,7 @@ ofifo #(.bw(bw_psum), .col(col))  ofifo_inst (
         .out(fifo_out)
 );
 
-wire qmem_clk;
+
 clockgating clk_gate_inst_qmem (
         .clk(clk_this_core),
         .en(qmem_even_rd||qmem_even_wr||qmem_odd_rd||qmem_even_wr),
@@ -138,7 +141,7 @@ sram_w16_doubleBuffered_b64 qmem_instance (
         .WEN_ODD(!qmem_odd_wr),
         .A(qkmem_add)
 );
-wire kmem_clk;
+
 clockgating clk_gate_inst_kmem (
         .clk(clk_this_core),
         .en(kmem_even_rd || kmem_odd_rd || kmem_even_wr || kmem_odd_wr),
@@ -155,7 +158,7 @@ sram_w16_doubleBuffered_b64 kmem_instance (
         .WEN_ODD(!kmem_odd_wr),
         .A(qkmem_add)
 );
-wire pmem_clk;
+
 clockgating clk_gate_inst_pmem (
         .clk(clk_this_core),
         .en(pmem_even_rd||pmem_odd_wr || pmem_even_wr || pmem_odd_wr),
@@ -171,17 +174,13 @@ sram_152b_w8 psum_mem_instance (
         .A(pmem_add)
 );
 
-wire [col*bw_psum-1:0] sfp_out;
-wire [col*bw_psum-1:0] sfp_in;
-assign sfp_in = pmem_out;
 
-wire sfp_clk_this_core, sfp_clk_other_core;
 clockgating clk_gate_inst_sfp_int (
         .clk(clk_this_core),
         .en(sfp_inst[1]||sfp_inst[0]||norm_mem_wr||pmem_rd||wr_sum),
         .gclk(sfp_clk_this_core)
 );
-assign sfp_clk_other_core = clk_ext_core;
+
 sfp_row#(.bw(bw), .bw_psum(bw_psum), .col(col)) sfp_instance (
         .clk(sfp_clk_this_core), 
         .sfp_inst(sfp_inst), 
@@ -195,10 +194,7 @@ sfp_row#(.bw(bw), .bw_psum(bw_psum), .col(col)) sfp_instance (
         .wr_sum(wr_sum)
 );
 
-wire [col*bw_psum-1:0] norm_in;
-assign norm_in = sfp_out;
-wire [col*bw_psum-1:0] norm_out;
-wire norm_mem_clk;
+
 clockgating clk_gate_inst_norm (
         .clk(clk_this_core),
         .en(norm_mem_rd||norm_mem_wr),
