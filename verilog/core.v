@@ -161,7 +161,7 @@ sram_w16_doubleBuffered_b64 kmem_instance (
 
 clockgating clk_gate_inst_pmem (
         .clk(clk_this_core),
-        .en(pmem_even_rd||pmem_odd_wr || pmem_even_wr || pmem_odd_wr),
+        .en(pmem_wr || pmem_rd),
         .gclk(pmem_clk)
 );
 
