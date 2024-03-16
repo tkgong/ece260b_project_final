@@ -1,6 +1,10 @@
 // Created by prof. Mingu Kang @VVIP Lab in UCSD ECE department
 // Please do not spread this code without permission 
-module core (
+module core #( parameter bw = 8,
+	parameter bw_psum = 2*bw+3,
+	parameter pr = 8,
+	parameter col = 8
+) (
         input clk_this_core, 
         input clk_ext_core, 
         input [bw_psum+3:0] sum_in,
@@ -15,14 +19,10 @@ module core (
         output [bw_psum*col-1:0] out,
         output [bw_psum+3:0] sum_out, 
         input wr_sum,
-        output [bw_psum*col-1:0] out_sfp,
-        output [bw_psum*col-1:0] array_out
+        output [bw_psum*col-1:0] out_sfp
         );
 
-parameter col = 8;
-parameter bw = 8;
-parameter bw_psum = 2*bw+3;
-parameter pr = 8;
+
 
 
 wire   [bw_psum*col-1:0] pmem_out;
@@ -56,7 +56,7 @@ wire qmem_clk;
 wire pmem_clk;
 wire [col*bw_psum-1:0] sfp_out;
 wire [col*bw_psum-1:0] sfp_in;
-
+wire [col*bw_psum-1:0] array_out;
 wire kmem_clk;
 wire sfp_clk_this_core, sfp_clk_other_core;
 wire [col*bw_psum-1:0] norm_in;
