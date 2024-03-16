@@ -272,10 +272,8 @@ fullchip#(.bw(bw), .bw_psum(bw_psum), .col(col), .pr(pr)) fullchip_instance (
   .async_interface_rd(async_interface_rd),
   .async_interface_wr(async_interface_wr),
   .out_sfp_core1(out_sfp_core1),
-  .out_sfp_core2(out_sfp_core2),
+  .out_sfp_core2(out_sfp_core2)
   //.norm_mem_wr(norm_mem_wr),
-  .array_out_core1(array_out_core1),
-  .array_out_core2(array_out_core2)
 );
 
 

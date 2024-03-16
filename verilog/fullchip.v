@@ -1,6 +1,9 @@
 // Created by prof. Mingu Kang @VVIP Lab in UCSD ECE department
 // Please do not spread this code without permission 
-module fullchip (input clk_core1, 
+module fullchip #(parameter col = 8,
+                  parameter bw = 8,
+                  parameter bw_psum = 2*bw+3,
+                  parameter pr = 8) (input clk_core1, 
                   input clk_core2, 
                   input [bw*pr-1:0] mem_in_core1, 
                   input [bw*pr-1:0] mem_in_core2, 
@@ -8,21 +11,10 @@ module fullchip (input clk_core1,
                   input reset, 
                   output [col*bw_psum-1:0] out_core1, 
                   output [col*bw_psum-1:0] out_core2, 
-                  //input [3:0] sfp_inst,
-                  //input [7:0] norm_mem_addr, 
-                  //input [1:0] norm_mem_wr,
-                  //input [1:0] norm_mem_rd, 
                   input [1:0] async_interface_rd,
                   input [1:0] async_interface_wr,
                   output [col*bw_psum-1:0] out_sfp_core1,
-                  output [col*bw_psum-1:0] out_sfp_core2,
-                  output [col*bw_psum-1:0] array_out_core1,
-                  output [col*bw_psum-1:0] array_out_core2);
-
-parameter col = 8;
-parameter bw = 8;
-parameter bw_psum = 2*bw+3;
-parameter pr = 8;
+                  output [col*bw_psum-1:0] out_sfp_core2);
 
 // wire [1:0] sfp_inst_core1, sfp_inst_core2;
 // assign sfp_inst_core1 = sfp_inst[1:0];
@@ -70,9 +62,8 @@ core #(.bw(bw), .bw_psum(bw_psum), .col(col), .pr(pr)) core1_instance (
       .sum_in(sum_in_core1),
       .sum_out(sum_out_core1),
       .out_sfp(out_sfp_core1),
-      .wr_sum(wr_sum_core1),
+      .wr_sum(wr_sum_core1)
       //.norm_mem_wr(norm_mem_wr_core1),
-      .array_out(array_out_core1)
 );
 
 core #(.bw(bw), .bw_psum(bw_psum), .col(col), .pr(pr)) core2_instance (
@@ -89,9 +80,8 @@ core #(.bw(bw), .bw_psum(bw_psum), .col(col), .pr(pr)) core2_instance (
       .sum_in(sum_in_core2),
       .sum_out(sum_out_core2),
       .out_sfp(out_sfp_core2),
-      .wr_sum(wr_sum_core2),
+      .wr_sum(wr_sum_core2)
       //.norm_mem_wr(norm_mem_wr_core2),
-      .array_out(array_out_core2)
 );
 
 endmodule
