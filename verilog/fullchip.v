@@ -7,7 +7,8 @@ module fullchip #(parameter col = 8,
                   input clk_core2, 
                   input [bw*pr-1:0] mem_in_core1, 
                   input [bw*pr-1:0] mem_in_core2, 
-                  input[57:0] inst, 
+                  input[28:0] inst_core1,
+                                     input [28:0] inst_core2,
                   input reset, 
                   output [col*bw_psum-1:0] out_core1, 
                   output [col*bw_psum-1:0] out_core2, 
@@ -40,9 +41,6 @@ wire [bw_psum+3:0] sum_in_core1, sum_in_core2, sum_out_core1, sum_out_core2;
 assign sum_in_core2 = sum_out_core1;
 assign sum_in_core1 = sum_out_core2;
 
- wire [28:0] inst_core1, inst_core2;
- assign inst_core1 = inst[28:0];
- assign inst_core2 = inst[57:29];
 
 // wire norm_mem_wr_core1, norm_mem_wr_core2;
 // assign norm_mem_wr_core1 = norm_mem_wr[0];
