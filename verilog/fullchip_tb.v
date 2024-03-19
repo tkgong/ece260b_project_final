@@ -701,16 +701,21 @@ $display("##### normalize output #####");
 
   #0.5 clk = 1'b0;
   pmem_rd_core1 = 1;
-  pmem_rd_core2 = 1; 
+  pmem_rd_core2 = 1;
+  sfp_acc_core1 = 1; 
+  sfp_acc_core2 = 1; 
   #0.5 clk = 1'b1;
 
   #0.5 clk = 1'b0;
-  sfp_acc_core1 = 1; 
-  sfp_acc_core2 = 1;
+
   
   for(q=0; q<total_cycle + 1; q=q+1) begin
     pmem_add_core1 = pmem_add_core1 + 1;
     pmem_add_core2 = pmem_add_core2 + 1;
+    #0.5 clk = 1'b1;
+    #0.5 clk = 1'b0;
+    #0.5 clk = 1'b1;
+    #0.5 clk = 1'b0;
     #0.5 clk = 1'b1;
     #0.5 clk = 1'b0;
   end

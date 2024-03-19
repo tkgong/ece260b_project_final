@@ -88,6 +88,23 @@ module sfp_row (clk, sfp_inst, fifo_ext_rd, sum_in, sum_out, sfp_in, sfp_out, cl
   assign abs[bw_psum*7-1 : bw_psum*6] = (sfp_in[bw_psum*7-1]) ?  (~sfp_in[bw_psum*7-1 : bw_psum*6] + 1)  :  sfp_in[bw_psum*7-1 : bw_psum*6];
   assign abs[bw_psum*8-1 : bw_psum*7] = (sfp_in[bw_psum*8-1]) ?  (~sfp_in[bw_psum*8-1 : bw_psum*7] + 1)  :  sfp_in[bw_psum*8-1 : bw_psum*7];
   
+
+
+  wire [bw_psum:0] sum0_0, sum0_1, sum0_2, sum0_3;
+  assign sum0_0 = abs[bw_psum-1:0] + abs[bw_psum*2-1:bw_psum];
+  assign sum0_1 = abs[bw_psum*4-1:bw_psum*3] + abs[bw_psum*3-1:bw_psum*2];
+  assign sum0_2 = abs[bw_psum*6-1:bw_psum*5] + abs[bw_psum*5-1:bw_psum*4];
+  assign sum0_3 = abs[bw_psum*8-1:bw_psum*7] + abs[bw_psum*7-1:bw_psum*6];
+  reg [bw_psum:0] sum0_0_q, sum0_1_q, sum0_2_q, sum0_3_q;
+
+  wire [bw_psum+1:0] sum1_0, sum1_1;
+  assign sum1_0 = sum0_0_q + sum0_1_q;
+  assign sum1_1 = sum0_2_q + sum0_3_q;
+  reg [bw_psum+1:0] sum1_0_q, sum1_1_q;
+
+  wire [bw_psum+3:0] sum2;
+  assign sum2 = {1'b0, sum1_0_q} + {1'b0, sum1_1_q};
+  reg [1:0] cnt;
   fifo_depth16 #(.bw(bw_psum+4)) fifo_inst_int (
      .rd_clk(clk), 
      .wr_clk(clk), 
@@ -108,6 +125,7 @@ module sfp_row (clk, sfp_inst, fifo_ext_rd, sum_in, sum_out, sfp_in, sfp_out, cl
 //     .reset(reset)
 //  );
 wire fifo_empty, fifo_full;
+
 fifo_async #(.sum_bw(bw_psum+4)) fifo_inst_ext(
   .wr_clk(clk),
   .rd_clk(clk_ext_core),
@@ -144,27 +162,29 @@ fifo_depth16 #(.bw(bw_psum)) ififo_inst(
 	end
   always @ (posedge clk or posedge reset) begin
     if (reset) begin
-      fifo_wr <= 0;
+      cnt = 0;
     end
     else begin
        div_q <= div ;
        if (acc) begin
-      
-         sum_q <= 
-           {4'b0, abs[bw_psum*1-1 : bw_psum*0]} +
-           {4'b0, abs[bw_psum*2-1 : bw_psum*1]} +
-           {4'b0, abs[bw_psum*3-1 : bw_psum*2]} +
-           {4'b0, abs[bw_psum*4-1 : bw_psum*3]} +
-           {4'b0, abs[bw_psum*5-1 : bw_psum*4]} +
-           {4'b0, abs[bw_psum*6-1 : bw_psum*5]} +
-           {4'b0, abs[bw_psum*7-1 : bw_psum*6]} +
-           {4'b0, abs[bw_psum*8-1 : bw_psum*7]} ;
-         fifo_wr <= 1;
+        sum0_0_q <= sum0_0;
+        sum0_1_q <= sum0_1;
+        sum0_2_q <= sum0_2;
+        sum0_3_q <= sum0_3;
+        sum1_0_q <= sum1_0;
+        sum1_1_q <= sum1_1;
+        sum_q <= sum2;
+        cnt <= cnt + 1; 
+        if (cnt == 2) begin 
+          cnt <= 0; 
+          fifo_wr <= 1;
+        end 
+        else fifo_wr <= 0;
        end
        else begin
-         fifo_wr <= 0;
    
          if (div) begin
+          fifo_wr <= 0;
            sfp_out_sign0 <= sfp_in_sign0 / sum_2core;
            sfp_out_sign1 <= sfp_in_sign1 / sum_2core;
            sfp_out_sign2 <= sfp_in_sign2 / sum_2core;
@@ -173,9 +193,6 @@ fifo_depth16 #(.bw(bw_psum)) ififo_inst(
            sfp_out_sign5 <= sfp_in_sign5 / sum_2core;
            sfp_out_sign6 <= sfp_in_sign6 / sum_2core;
            sfp_out_sign7 <= sfp_in_sign7 / sum_2core;
-
-
-
          end
        end
    end
