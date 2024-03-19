@@ -452,7 +452,7 @@ $display("##### Estimated Normalization result #####");
        norm_out_col_core1[t] = {norm_out_col_core1[t][139:0], norm_out_core1[t][q]};
        norm_out_col_core2[t] = {norm_out_col_core2[t][139:0], norm_out_core2[t][q]};
 	     norm_out_col_core1[0]=152'h00004000640003800120000400030000980014;
-	     norm_out_col_core2[0] = 125'h0000600018000380005000060002c00000000a;
+	     norm_out_col_core2[0] = 152'h0000600018000380005000060002c00000000a;
      end
      $display("Core1 normalized out @cycle%2d: %40h", t, norm_out_col_core1[t]);
      $display("Core2 normalized out @cycle%2d: %40h", t, norm_out_col_core2[t]);
