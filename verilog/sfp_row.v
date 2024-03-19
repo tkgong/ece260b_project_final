@@ -1,6 +1,6 @@
 // Created by prof. Mingu Kang @VVIP Lab in UCSD ECE department
 // Please do not spread this code without permission 
-module sfp_row (clk, sfp_inst, fifo_ext_rd, sum_in, sum_out, sfp_in, sfp_out, clk_ext_core, reset, wr_sum);
+module sfp_row (clk, sfp_inst, fifo_ext_rd, sum_in, sum_out, sfp_in, sfp_out, clk_ext_core, reset, wr_sum, ififo_wr);
 
   parameter col = 8;
   parameter bw = 8;
@@ -11,7 +11,9 @@ module sfp_row (clk, sfp_inst, fifo_ext_rd, sum_in, sum_out, sfp_in, sfp_out, cl
   input [1:0] sfp_inst; 
   input  [col*bw_psum-1:0] sfp_in;
   input wr_sum;
+  input ififo_wr;
   wire  [col*bw_psum-1:0] abs;
+    wire  [col*bw_psum-1:0] abs_1;
   reg    div_q;
   output [col*bw_psum-1:0] sfp_out;
   output [bw_psum+3:0] sum_out;
@@ -37,7 +39,7 @@ module sfp_row (clk, sfp_inst, fifo_ext_rd, sum_in, sum_out, sfp_in, sfp_out, cl
   reg signed [bw_psum-1:0] sfp_out_sign5;
   reg signed [bw_psum-1:0] sfp_out_sign6;
   reg signed [bw_psum-1:0] sfp_out_sign7;
-
+  wire [col*bw_psum-1:0] sfp_in_sign;
   reg [bw_psum+3:0] sum_q;
   wire [bw_psum+3:0] sum_other_core;
   reg fifo_wr;
@@ -46,14 +48,14 @@ module sfp_row (clk, sfp_inst, fifo_ext_rd, sum_in, sum_out, sfp_in, sfp_out, cl
   assign acc =sfp_inst[0];
   assign div = sfp_inst[1];
   assign data_ready = div_q && fifo_ext_rd;
-  assign sfp_in_sign0 =  abs[bw_psum*1-1 : bw_psum*0];
-  assign sfp_in_sign1 =  abs[bw_psum*2-1 : bw_psum*1];
-  assign sfp_in_sign2 =  abs[bw_psum*3-1 : bw_psum*2];
-  assign sfp_in_sign3 =  abs[bw_psum*4-1 : bw_psum*3];
-  assign sfp_in_sign4 =  abs[bw_psum*5-1 : bw_psum*4];
-  assign sfp_in_sign5 =  abs[bw_psum*6-1 : bw_psum*5];
-  assign sfp_in_sign6 =  abs[bw_psum*7-1 : bw_psum*6];
-  assign sfp_in_sign7 =  abs[bw_psum*8-1 : bw_psum*7];
+  assign sfp_in_sign0 =  abs_1[bw_psum*1-1 : bw_psum*0];
+  assign sfp_in_sign1 =  abs_1[bw_psum*2-1 : bw_psum*1];
+  assign sfp_in_sign2 =  abs_1[bw_psum*3-1 : bw_psum*2];
+  assign sfp_in_sign3 =  abs_1[bw_psum*4-1 : bw_psum*3];
+  assign sfp_in_sign4 =  abs_1[bw_psum*5-1 : bw_psum*4];
+  assign sfp_in_sign5 =  abs_1[bw_psum*6-1 : bw_psum*5];
+  assign sfp_in_sign6 =  abs_1[bw_psum*7-1 : bw_psum*6];
+  assign sfp_in_sign7 =  abs_1[bw_psum*8-1 : bw_psum*7];
 
 
   assign sfp_out[bw_psum*1-1 : bw_psum*0] = sfp_out_sign0;
@@ -68,6 +70,15 @@ module sfp_row (clk, sfp_inst, fifo_ext_rd, sum_in, sum_out, sfp_in, sfp_out, cl
 
   assign sum_2core = sum_this_core[bw_psum+3:7] + sum_other_core[bw_psum+3:7];
 
+  assign abs_1[bw_psum*1-1 : bw_psum*0] = (sfp_in_sign[bw_psum*1-1]) ?  (~sfp_in_sign[bw_psum*1-1 : bw_psum*0] + 1)  :  sfp_in_sign[bw_psum*1-1 : bw_psum*0];
+  assign abs_1[bw_psum*2-1 : bw_psum*1] = (sfp_in_sign[bw_psum*2-1]) ?  (~sfp_in_sign[bw_psum*2-1 : bw_psum*1] + 1)  :  sfp_in_sign[bw_psum*2-1 : bw_psum*1];
+  assign abs_1[bw_psum*3-1 : bw_psum*2] = (sfp_in_sign[bw_psum*3-1]) ?  (~sfp_in_sign[bw_psum*3-1 : bw_psum*2] + 1)  :  sfp_in_sign[bw_psum*3-1 : bw_psum*2];
+  assign abs_1[bw_psum*4-1 : bw_psum*3] = (sfp_in_sign[bw_psum*4-1]) ?  (~sfp_in_sign[bw_psum*4-1 : bw_psum*3] + 1)  :  sfp_in_sign[bw_psum*4-1 : bw_psum*3];
+  assign abs_1[bw_psum*5-1 : bw_psum*4] = (sfp_in_sign[bw_psum*5-1]) ?  (~sfp_in_sign[bw_psum*5-1 : bw_psum*4] + 1)  :  sfp_in_sign[bw_psum*5-1 : bw_psum*4];
+  assign abs_1[bw_psum*6-1 : bw_psum*5] = (sfp_in_sign[bw_psum*6-1]) ?  (~sfp_in_sign[bw_psum*6-1 : bw_psum*5] + 1)  :  sfp_in_sign[bw_psum*6-1 : bw_psum*5];
+  assign abs_1[bw_psum*7-1 : bw_psum*6] = (sfp_in_sign[bw_psum*7-1]) ?  (~sfp_in_sign[bw_psum*7-1 : bw_psum*6] + 1)  :  sfp_in_sign[bw_psum*7-1 : bw_psum*6];
+  assign abs_1[bw_psum*8-1 : bw_psum*7] = (sfp_in_sign[bw_psum*8-1]) ?  (~sfp_in_sign[bw_psum*8-1 : bw_psum*7] + 1)  :  sfp_in_sign[bw_psum*8-1 : bw_psum*7];
+
   assign abs[bw_psum*1-1 : bw_psum*0] = (sfp_in[bw_psum*1-1]) ?  (~sfp_in[bw_psum*1-1 : bw_psum*0] + 1)  :  sfp_in[bw_psum*1-1 : bw_psum*0];
   assign abs[bw_psum*2-1 : bw_psum*1] = (sfp_in[bw_psum*2-1]) ?  (~sfp_in[bw_psum*2-1 : bw_psum*1] + 1)  :  sfp_in[bw_psum*2-1 : bw_psum*1];
   assign abs[bw_psum*3-1 : bw_psum*2] = (sfp_in[bw_psum*3-1]) ?  (~sfp_in[bw_psum*3-1 : bw_psum*2] + 1)  :  sfp_in[bw_psum*3-1 : bw_psum*2];
@@ -76,7 +87,7 @@ module sfp_row (clk, sfp_inst, fifo_ext_rd, sum_in, sum_out, sfp_in, sfp_out, cl
   assign abs[bw_psum*6-1 : bw_psum*5] = (sfp_in[bw_psum*6-1]) ?  (~sfp_in[bw_psum*6-1 : bw_psum*5] + 1)  :  sfp_in[bw_psum*6-1 : bw_psum*5];
   assign abs[bw_psum*7-1 : bw_psum*6] = (sfp_in[bw_psum*7-1]) ?  (~sfp_in[bw_psum*7-1 : bw_psum*6] + 1)  :  sfp_in[bw_psum*7-1 : bw_psum*6];
   assign abs[bw_psum*8-1 : bw_psum*7] = (sfp_in[bw_psum*8-1]) ?  (~sfp_in[bw_psum*8-1 : bw_psum*7] + 1)  :  sfp_in[bw_psum*8-1 : bw_psum*7];
-
+  
   fifo_depth16 #(.bw(bw_psum+4)) fifo_inst_int (
      .rd_clk(clk), 
      .wr_clk(clk), 
@@ -119,6 +130,18 @@ fifo_depth16 #(.bw(bw_psum+4)) fifo_inst_sum (
   .wr(wr_sum),
   .reset(reset)
 );
+genvar i;
+for(i=1;i<col+1;i=i+1) begin :col_num
+fifo_depth16 #(.bw(bw_psum)) ififo_inst(
+	.rd_clk(clk),
+	.wr_clk(clk),
+	.in(sfp_in[bw_psum*i-1:bw_psum*(i-1)]),
+	.out(sfp_in_sign[bw_psum*i-1:bw_psum*(i-1)]),
+	.rd(div),
+	.wr(ififo_wr),
+	.reset(reset)
+	);	
+	end
   always @ (posedge clk or posedge reset) begin
     if (reset) begin
       fifo_wr <= 0;

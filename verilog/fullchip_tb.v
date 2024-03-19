@@ -44,7 +44,7 @@ reg reset = 1;
 reg clk = 0;
 reg [pr*bw-1:0] mem_in_core1; 
 reg [pr*bw-1:0] mem_in_core2; 
-wire [57:0] inst;
+wire [59:0] inst;
 
 
 reg pmem_wr_core1 = 0; // inst[0]
@@ -88,7 +88,8 @@ reg norm_mem_rd_core2 =0; //inst[55];
 reg [3:0] norm_mem_addr_core2 = 0;//inst[59:56];
 reg sfp_acc_core2 = 0;//inst[60];
 reg sfp_div_core2 = 0;
-
+reg sfp_ififo_wr_core1 = 0;
+reg sfp_ififo_wr_core2 = 0;
 
 
 assign inst[0] = pmem_wr_core1;
@@ -112,27 +113,29 @@ assign inst[22] = norm_mem_rd_core1;
 assign inst[26:23] = norm_mem_addr_core1;
 assign inst[27] = sfp_acc_core1;
 assign inst[28] = sfp_div_core1;
+assign inst[29] = sfp_ififo_wr_core1;
 
-assign inst[29] = pmem_wr_core2;
-assign inst[30] = pmem_rd_core2;
-assign inst[31] = kmem_even_wr_core2;
-assign inst[32] = kmem_odd_wr_core2;
-assign inst[33] = kmem_even_rd_core2;
-assign inst[34] = kmem_odd_rd_core2;
-assign inst[35] = qmem_even_wr_core2;
-assign inst[36] = qmem_odd_wr_core2;
-assign inst[37] = qmem_even_rd_core2;
-assign inst[38] = qmem_odd_rd_core2;
-assign inst[42:39] = pmem_add_core2;
-assign inst[46:43] = qkmem_add_core2;
-assign inst[47] = ofifo_rd_core2;
-assign inst[48] = mac_loadk_core2;
-assign inst[49] = mac_exe_core2;
-assign inst[50] = norm_mem_wr_core2;
-assign inst[51] = norm_mem_rd_core2;
-assign inst[55:52] = norm_mem_addr_core2;
-assign inst[56] = sfp_acc_core2;
-assign inst[57] = sfp_div_core2;
+assign inst[30] = pmem_wr_core2;
+assign inst[31] = pmem_rd_core2;
+assign inst[32] = kmem_even_wr_core2;
+assign inst[33] = kmem_odd_wr_core2;
+assign inst[34] = kmem_even_rd_core2;
+assign inst[35] = kmem_odd_rd_core2;
+assign inst[36] = qmem_even_wr_core2;
+assign inst[37] = qmem_odd_wr_core2;
+assign inst[38] = qmem_even_rd_core2;
+assign inst[39] = qmem_odd_rd_core2;
+assign inst[43:40] = pmem_add_core2;
+assign inst[47:44] = qkmem_add_core2;
+assign inst[48] = ofifo_rd_core2;
+assign inst[49] = mac_loadk_core2;
+assign inst[50] = mac_exe_core2;
+assign inst[51] = norm_mem_wr_core2;
+assign inst[52] = norm_mem_rd_core2;
+assign inst[56:53] = norm_mem_addr_core2;
+assign inst[57] = sfp_acc_core2;
+assign inst[58] = sfp_div_core2;
+assign inst[59] = sfp_ififo_wr_core2;
 
 wire [1:0] async_interface_rd;
 reg fifo_ext_rd_core1 = 0;
@@ -262,7 +265,8 @@ fullchip#(.bw(bw), .bw_psum(bw_psum), .col(col), .pr(pr)) fullchip_instance (
   .clk_core2(clk),
   .mem_in_core1(mem_in_core1),
   .mem_in_core2(mem_in_core2),
-  .inst(inst),
+  .inst_core1(inst[29:0]),
+  .inst_core2(inst[59:30]),
   .reset(reset),
   .out_core1(out_core1),
   .out_core2(out_core2),
@@ -742,10 +746,11 @@ $display("##### normalize output #####");
   norm_mem_addr_core2 = 0;
   #0.5 clk = 1'b1;
 
-   for (q = 0; q< total_cycle +2;q=q+1) begin
+   for (q = 0; q< total_cycle +2;q=q+1) begin // move pmem content to ififo in sfp
     #0.5 clk = 1'b0;
     pmem_rd_core1 = 1; pmem_rd_core2 = 1;
-    sfp_div_core1 = 1; sfp_div_core2 = 1;
+    //sfp_div_core1 = 1; sfp_div_core2 = 1;
+    sfp_ififo_wr_core1 = 1; sfp_ififo_wr_core2 = 1;
     if (q>0) begin
       pmem_add_core1 = pmem_add_core1 + 1;
       pmem_add_core2 = pmem_add_core2 + 1;
@@ -755,21 +760,46 @@ $display("##### normalize output #####");
     //$display("core2: cycle %1d, expected out is %h, actual out is %h", q-1, norm_out_col_core2[q-2], out_sfp_core2);
     //end
 
-    if (q>1) begin
-      norm_mem_wr_core1 = 1; norm_mem_wr_core2 = 1;
-      if (q>2) begin
-        norm_mem_addr_core1 = norm_mem_addr_core1 + 1;
-        norm_mem_addr_core2 = norm_mem_addr_core2 + 1;
-      end
+    //if (q>1) begin
+      //norm_mem_wr_core1 = 1; norm_mem_wr_core2 = 1;
+      //if (q>2) begin
+        //norm_mem_addr_core1 = norm_mem_addr_core1 + 1;
+        //norm_mem_addr_core2 = norm_mem_addr_core2 + 1;
+      //end
+      #0.5 clk = 1'b1;
     end
-    #0.5 clk = 1'b1;
+    
+
+
+#0.5 clk = 1'b0;
+pmem_rd_core1 = 0; pmem_rd_core2 = 0;
+sfp_ififo_wr_core1 = 0; sfp_ififo_wr_core2 = 0;
+#0.5 clk =1'b1;
+
+  for (i = 0; i < total_cycle + 2; i=i+1) begin
+  #0.5 clk = 1'b0;
+	sfp_div_core1 = 1; sfp_div_core2 = 1;
+	norm_mem_wr_core1 = 1; norm_mem_wr_core2 = 1;
+	if (i > 2) begin
+		norm_mem_addr_core1 = norm_mem_addr_core1 + 1;
+		norm_mem_addr_core2 = norm_mem_addr_core2 + 1;
+	end
+	#0.5 clk = 1'b1;
   end
+
+
+
 
   #0.5 clk = 1'b0;
   norm_mem_wr_core1 = 0; norm_mem_wr_core2 = 0;
   norm_mem_addr_core1 = 0; norm_mem_addr_core2 = 0;
     #0.5 clk = 1'b1;
   $display("Fetching norm_mem content to double check");
+  
+  
+  
+  
+  
   for (q=0; q<total_cycle + 1; q=q+1) begin
     #0.5 clk = 1'b0;
     norm_mem_rd_core1 = 1; norm_mem_rd_core2 = 1;
@@ -788,8 +818,8 @@ $display("##### normalize output #####");
     
     #0.5 clk = 1'b1;
   end
+  
 end
-
 endmodule
 
 

@@ -9,22 +9,14 @@ module core #( parameter bw = 8,
         input clk_ext_core, 
         input [bw_psum+3:0] sum_in,
         input [pr*bw-1:0] mem_in, 
-        input [28:0] inst, 
+        input [29:0] inst, 
         input reset, 
-        //input [3:0] norm_mem_addr, 
-        //input norm_mem_rd, 
-        //input norm_mem_wr,
-        //input [1:0] sfp_inst,
         input fifo_ext_rd,
         output [bw_psum*col-1:0] out,
         output [bw_psum+3:0] sum_out, 
         input wr_sum,
         output [bw_psum*col-1:0] out_sfp
         );
-
-
-
-
 wire   [bw_psum*col-1:0] pmem_out;
 wire  [pr*bw-1:0] mac_in;
 wire  [pr*bw-1:0] kmem_out;
@@ -63,7 +55,7 @@ wire [col*bw_psum-1:0] norm_in;
 
 wire [col*bw_psum-1:0] norm_out;
 wire norm_mem_clk;
-
+wire sfp_ififo_wr;
 assign sfp_in = pmem_out;
 assign norm_in = sfp_out;
 assign pmem_wr = inst[0];
@@ -86,14 +78,14 @@ assign norm_mem_rd = inst[22];
 assign norm_mem_addr = inst[26:23];
 assign sfp_inst[0] = inst[27];
 assign sfp_inst[1] = inst[28];
+assign sfp_ififo_wr = inst[29];
 assign sfp_clk_other_core = clk_ext_core;
 
 assign mac_in  = inst[19] ? kmem_out : qmem_out;
 assign pmem_in = fifo_out;
 assign out = norm_mem_rd? norm_out: pmem_out;
+
 assign out_sfp = sfp_out;
-
-
 clockgating clk_gate_inst_mac(
         .clk(clk_this_core), 
         .en((inst[20]|| inst[19]||fifo_wr)), 
@@ -177,7 +169,7 @@ sram_152b_w8 psum_mem_instance (
 
 clockgating clk_gate_inst_sfp_int (
         .clk(clk_this_core),
-        .en(sfp_inst[1]||sfp_inst[0]||norm_mem_wr||pmem_rd||wr_sum),
+        .en(sfp_inst[1]||sfp_inst[0]||norm_mem_wr||pmem_rd||wr_sum||sfp_ififo_wr),
         .gclk(sfp_clk_this_core)
 );
 
@@ -191,9 +183,9 @@ sfp_row#(.bw(bw), .bw_psum(bw_psum), .col(col)) sfp_instance (
         .sfp_out(sfp_out), 
         .clk_ext_core(sfp_clk_other_core), 
         .reset(reset),
-        .wr_sum(wr_sum)
+        .wr_sum(wr_sum),
+	.ififo_wr(sfp_ififo_wr)
 );
-
 
 clockgating clk_gate_inst_norm (
         .clk(clk_this_core),
