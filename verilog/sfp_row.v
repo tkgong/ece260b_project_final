@@ -44,7 +44,7 @@ module sfp_row (clk, sfp_inst, fifo_ext_rd, sum_in, sum_out, sfp_in, sfp_out, cl
   wire [bw_psum+3:0] sum_other_core;
   reg fifo_wr;
   wire acc, div;
-
+  reg acc_q;
   assign acc =sfp_inst[0];
   assign div = sfp_inst[1];
   assign data_ready = div_q && fifo_ext_rd;
@@ -166,7 +166,8 @@ fifo_depth16 #(.bw(bw_psum)) ififo_inst(
     end
     else begin
        div_q <= div ;
-       if (acc) begin
+       acc_q <= acc;
+       if (acc_q) begin
         sum0_0_q <= sum0_0;
         sum0_1_q <= sum0_1;
         sum0_2_q <= sum0_2;
