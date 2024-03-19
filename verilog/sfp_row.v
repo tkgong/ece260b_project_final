@@ -162,7 +162,7 @@ fifo_depth16 #(.bw(bw_psum)) ififo_inst(
 	end
   always @ (posedge clk or posedge reset) begin
     if (reset) begin
-      cnt = 0;
+      cnt <= 0;
     end
     else begin
        div_q <= div ;
