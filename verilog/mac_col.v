@@ -28,7 +28,7 @@ wire  signed [bw_psum-1:0] psum;
 assign o_inst = inst_q[1]? inst_2q : inst_q;
 assign q_out  = inst_q[1]? query_q_delayed: query_q;
 assign out = psum;
-assign fifo_wr = inst_4q[1];
+assign fifo_wr = inst_3q[1]? inst_4q[1]:inst_3q[1];
 mac #(.bw(bw), .bw_psum(bw_psum), .pr(pr)) mac_instance (
         .a(query_q), 
         .b(key_q),

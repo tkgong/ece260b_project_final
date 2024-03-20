@@ -18,3 +18,4 @@
 ./verilog/fifo_mux.v
 ./verilog/clockgating.v
 ./verilog/sram_w8.v
+./verilog/fifo_depth8.v
