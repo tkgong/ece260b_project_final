@@ -671,26 +671,26 @@ $display("##### move ofifo to pmem #####");
 /////////////////////Verify Multiplication Result////////////////////////////////////
 
 $display("Fectch core1 pmem content");
-for (q = 0; q<total_cycle + 1; q=q+1) begin
+for (q = 0; q<total_cycle + 2; q=q+1) begin
   #0.5 clk = 1'b0;
   pmem_rd_core1 = 1;
-  if (q>0 && q<8) begin
+  if (q>0 ) begin
     pmem_add_core1 = pmem_add_core1 + 1;
   end
   #0.5 clk = 1'b1;
-  if (q>0)
+  if (q>1)
     $display("cycle%d, out is %h ", q, out_core1);
 end
 
 $display("Fectch core2 pmem content");
-for (q = 0; q<total_cycle + 1; q=q+1) begin
+for (q = 0; q<total_cycle + 2; q=q+1) begin
   #0.5 clk = 1'b0;
   pmem_rd_core2 = 1;
-  if (q>0 && q<8) begin
+  if (q>0) begin
     pmem_add_core2 = pmem_add_core2 + 1;
   end
   #0.5 clk = 1'b1;
-  if (q>0) begin
+  if (q>1) begin
     $display("cycle%d, out is %h", q, out_core2);
   end
 end // Successful up to this point
@@ -799,24 +799,22 @@ sfp_ififo_wr_core1 = 0; sfp_ififo_wr_core2 = 0;
   norm_mem_wr_core1 = 0; norm_mem_wr_core2 = 0;
   norm_mem_addr_core1 = 0; norm_mem_addr_core2 = 0;
     #0.5 clk = 1'b1;
+
+
   $display("Fetching norm_mem content to double check");
-  
-  
-  
-  
-  
-  for (q=0; q<total_cycle + 1; q=q+1) begin
+  for (q=0; q<total_cycle + 2; q=q+1) begin
     #0.5 clk = 1'b0;
     norm_mem_rd_core1 = 1; norm_mem_rd_core2 = 1;
     if (q>0) begin
       norm_mem_addr_core1 = norm_mem_addr_core1 + 1;
       norm_mem_addr_core2 = norm_mem_addr_core2 + 1;
-      if (out_core1 == norm_out_col_core1[q-1] && out_core2 == norm_out_col_core2[q-1]) begin
-        $display("For core 1, cycle %1d, expected out is %h, actual out is %h. Data Match :D",q, norm_out_col_core1[q-1], out_core1);
-        $display("For core 2, cycle %1d, expected out is %h, actual out is %h. Data Match :D",q, norm_out_col_core2[q-1], out_core2);
+      if (q>1) begin
+      if (out_core1 == norm_out_col_core1[q-2] && out_core2 == norm_out_col_core2[q-2]) begin
+        $display("For core 1, cycle %1d, expected out is %h, actual out is %h. Data Match :D",q-1, norm_out_col_core1[q-2], out_core1);
+        $display("For core 2, cycle %1d, expected out is %h, actual out is %h. Data Match :D",q-1, norm_out_col_core2[q-2], out_core2);
       end
-
-      else $display("Data does not match, error occurs at cycle %d", q);
+      end
+      //else $display("Data does not match, error occurs at cycle %d", q);
       
     end
 

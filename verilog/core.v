@@ -14,8 +14,7 @@ module core #( parameter bw = 8,
         input fifo_ext_rd,
         output [bw_psum*col-1:0] out,
         output [bw_psum+3:0] sum_out, 
-        input wr_sum,
-        output [bw_psum*col-1:0] out_sfp
+        input wr_sum
         );
 wire   [bw_psum*col-1:0] pmem_out;
 wire  [pr*bw-1:0] mac_in;
@@ -52,7 +51,7 @@ wire [col*bw_psum-1:0] array_out;
 wire kmem_clk;
 wire sfp_clk_this_core, sfp_clk_other_core;
 wire [col*bw_psum-1:0] norm_in;
-
+reg [col*bw_psum-1:0] out_reg;
 wire [col*bw_psum-1:0] norm_out;
 wire norm_mem_clk;
 wire sfp_ififo_wr;
@@ -83,9 +82,8 @@ assign sfp_clk_other_core = clk_ext_core;
 
 assign mac_in  = inst[19] ? kmem_out : qmem_out;
 assign pmem_in = fifo_out;
-assign out = norm_mem_rd? norm_out: pmem_out;
+assign out = out_reg;
 
-assign out_sfp = sfp_out;
 clockgating clk_gate_inst_mac(
         .clk(clk_this_core), 
         .en((inst[20]|| inst[19]||fifo_wr)), 
@@ -201,5 +199,8 @@ sram_152b_w8 norm_mem_instance(
         .WEN(!(norm_mem_wr)),
         .A(norm_mem_addr)
 );
-
+always @(posedge clk_this_core ) begin
+        if (pmem_rd) out_reg <= pmem_out;
+        if (norm_mem_rd) out_reg <= norm_out;
+end
 endmodule

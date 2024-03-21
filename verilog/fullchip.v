@@ -59,7 +59,6 @@ core #(.bw(bw), .bw_psum(bw_psum), .col(col), .pr(pr)) core1_instance (
       .fifo_ext_rd(fifo_ext_rd_core1),
       .sum_in(sum_in_core1),
       .sum_out(sum_out_core1),
-      .out_sfp(out_sfp_core1),
       .wr_sum(wr_sum_core1)
       //.norm_mem_wr(norm_mem_wr_core1),
 );
@@ -77,7 +76,6 @@ core #(.bw(bw), .bw_psum(bw_psum), .col(col), .pr(pr)) core2_instance (
       .fifo_ext_rd(fifo_ext_rd_core2),
       .sum_in(sum_in_core2),
       .sum_out(sum_out_core2),
-      .out_sfp(out_sfp_core2),
       .wr_sum(wr_sum_core2)
       //.norm_mem_wr(norm_mem_wr_core2),
 );
