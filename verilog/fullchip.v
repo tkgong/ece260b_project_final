@@ -13,9 +13,7 @@ module fullchip #(parameter col = 8,
                   output [col*bw_psum-1:0] out_core1, 
                   output [col*bw_psum-1:0] out_core2, 
                   input [1:0] async_interface_rd,
-                  input [1:0] async_interface_wr,
-                  output [col*bw_psum-1:0] out_sfp_core1,
-                  output [col*bw_psum-1:0] out_sfp_core2);
+                  input [1:0] async_interface_wr);
 
 // wire [1:0] sfp_inst_core1, sfp_inst_core2;
 // assign sfp_inst_core1 = sfp_inst[1:0];

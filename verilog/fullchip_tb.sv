@@ -151,99 +151,11 @@ assign async_interface_wr[1] = wr_sum_core2;
 
 
 
-
-// reg ofifo_rd_core1 = 0;
-// reg ofifo_rd_core2 = 0;
-// wire [33:0] inst; 
-// reg qmem_rd_core1 = 0;
-// reg qmem_wr_core1 = 0; 
-// reg kmem_rd_core1 = 0; 
-// reg kmem_wr_core1 = 0;
-// reg pmem_rd_core1 = 0; 
-// reg pmem_wr_core1 = 0; 
-// reg execute_core1 = 0;
-// reg load_core1 = 0;
-// reg qmem_rd_core2 = 0;
-// reg qmem_wr_core2 = 0; 
-// reg kmem_rd_core2 = 0; 
-// reg kmem_wr_core2 = 0;
-// reg pmem_rd_core2 = 0; 
-// reg pmem_wr_core2 = 0; 
-// reg execute_core2 = 0;
-// reg load_core2= 0;
-// reg [3:0] qkmem_add_core1 = 0;
-// reg [3:0] pmem_add_core1 = 0;
-// reg [3:0] qkmem_add_core2 = 0;
-// reg [3:0] pmem_add_core2 = 0;
-// reg wr_norm_core1 = 0;
-// reg wr_norm_core2 = 0;
-wire [col*bw_psum-1:0] out_core1;
-wire [col*bw_psum-1:0] out_core2;
-// assign inst[16] = ofifo_rd_core1;
-// assign inst[15:12] = qkmem_add_core1;
-// assign inst[11:8]  = pmem_add_core1;
-// assign inst[7] = execute_core1;
-// assign inst[6] = load_core1;
-// assign inst[5] = qmem_rd_core1;
-// assign inst[4] = qmem_wr_core1;
-// assign inst[3] = kmem_rd_core1;
-// assign inst[2] = kmem_wr_core1;
-// assign inst[1] = pmem_rd_core1;
-// assign inst[0] = pmem_wr_core1;
-
-// assign inst[33] = ofifo_rd_core2;
-// assign inst[32:29] = qkmem_add_core2;
-// assign inst[28:25]  = pmem_add_core2;
-// assign inst[24] = execute_core2;
-// assign inst[23] = load_core2;
-// assign inst[22] = qmem_rd_core2;
-// assign inst[21] = qmem_wr_core2;
-// assign inst[20] = kmem_rd_core2;
-// assign inst[19] = kmem_wr_core2;
-// assign inst[18] = pmem_rd_core2;
-// assign inst[17] = pmem_wr_core2;
-// wire [3:0] sfp_inst;
-// reg acc_core1 = 0; 
-// reg div_core1 = 0; 
-// reg acc_core2 = 0;
-// reg div_core2 = 0;
-// assign sfp_inst[0] = acc_core1;
-// assign sfp_inst[1] = div_core1;
-// assign sfp_inst[2] = acc_core2;
-// assign sfp_inst[3] = div_core2;
-// wire [7:0] norm_mem_addr;
-// reg [3:0] norm_mem_addr_core1 = 0;
-// reg [3:0] norm_mem_addr_core2 = 0;
-// assign norm_mem_addr[3:0] = norm_mem_addr_core1;
-// assign norm_mem_addr[7:4] = norm_mem_addr_core2;
-// wire [1:0] norm_mem_rd;
-// reg norm_mem_rd_core1 = 0;
-// reg norm_mem_rd_core2 = 0;
-// assign norm_mem_rd[0] = norm_mem_rd_core1;
-// assign norm_mem_rd[1] = norm_mem_rd_core2;
-// wire [1:0] async_interface_rd;
-// reg fifo_ext_rd_core1 = 0;
-// reg fifo_ext_rd_core2 = 0;
-// assign async_interface_rd[0] = fifo_ext_rd_core1;
-// assign async_interface_rd[1] = fifo_ext_rd_core2;
-// wire [1:0] async_interface_wr;
-// reg wr_sum_core1 = 0;
-// reg wr_sum_core2 = 0;
-// assign async_interface_wr[0] = wr_sum_core1;
-// assign async_interface_wr[1] = wr_sum_core2;
-// wire [1:0] norm_mem_wr;
-// reg norm_mem_wr_core1 = 0;
-// reg norm_mem_wr_core2 = 0;
-// assign norm_mem_wr[0] = norm_mem_wr_core1;
-// assign norm_mem_wr[1] = norm_mem_wr_core2;
-
-
-
 reg [bw_psum-1:0] temp5b;
 reg [bw_psum+3:0] temp_sum;
 reg [bw_psum*col-1:0] temp16b;
-
-
+reg [bw_psum*col-1:0] multiplication_result_core1[total_cycle];
+reg [bw_psum*col-1:0] multiplication_result_core2[total_cycle];
 reg signed [bw_psum-1:0] temp5b_core1, temp5b_core2;
 reg signed [bw_psum-1:0] abs_temp5b_core1, abs_temp5b_core2;
 reg signed [bw_psum+3:0] temp_sum_core1, temp_sum_core2;
@@ -253,8 +165,8 @@ reg [bw_psum*col-1:0] norm_out_col_core1[total_cycle-1:0];
 reg [bw_psum*col-1:0] norm_out_col_core2[total_cycle-1:0];
 reg signed [bw_psum-1:0] norm_out_core1[total_cycle-1:0][col-1:0]; 
 reg signed [bw_psum-1:0] norm_out_core2[total_cycle-1:0][col-1:0]; 
-wire [col*bw_psum-1:0] out_sfp_core1;
-wire [col*bw_psum-1:0] out_sfp_core2;
+wire [col*bw_psum-1:0] out_core1;
+wire [col*bw_psum-1:0] out_core2;
 
 wire [col*bw_psum-1:0] array_out_core1; 
 wire [col*bw_psum-1:0] array_out_core2;
@@ -270,14 +182,8 @@ fullchip#(.bw(bw), .bw_psum(bw_psum), .col(col), .pr(pr)) fullchip_instance (
   .reset(reset),
   .out_core1(out_core1),
   .out_core2(out_core2),
-  //.sfp_inst(sfp_inst),
-  //.norm_mem_addr(norm_mem_addr),
-  //.norm_mem_rd(norm_mem_rd),
   .async_interface_rd(async_interface_rd),
-  .async_interface_wr(async_interface_wr),
-  .out_sfp_core1(out_sfp_core1),
-  .out_sfp_core2(out_sfp_core2)
-  //.norm_mem_wr(norm_mem_wr),
+  .async_interface_wr(async_interface_wr)
 );
 
 
@@ -435,7 +341,10 @@ $display("##### Estimated multiplication result #####");
 	      sum_core2[t] = sum_core2[t] + {4'b0, abs_temp5b_core2};
      end
 
-    $display("prd @cycle%2d: core 1 %h, core 2 %h", t, temp16b_core1, temp16b_core2);
+   // $display("@cycle%2d: core 1 %h, core 2 %h", t, temp16b_core1, temp16b_core2);
+    multiplication_result_core1[t] = temp16b_core1;
+    multiplication_result_core2[t] = temp16b_core2;
+    //$display("%h,%h", multiplication_result_core1[t], multiplication_result_core2[t]);
      //$display("sum @cycle:%2d: core1 %8h core2 %8h", t, sum_core1[t], sum_core2[t]);
   end
 
@@ -452,8 +361,8 @@ $display("##### Estimated Normalization result #####");
        norm_out_col_core1[t] = {norm_out_col_core1[t][139:0], norm_out_core1[t][q]};
        norm_out_col_core2[t] = {norm_out_col_core2[t][139:0], norm_out_core2[t][q]};
      end
-     $display("Core1 normalized out @cycle%2d: %40h", t, norm_out_col_core1[t]);
-     $display("Core2 normalized out @cycle%2d: %40h", t, norm_out_col_core2[t]);
+     //$display("Core1 normalized out @cycle%2d: %40h", t, norm_out_col_core1[t]);
+     //$display("Core2 normalized out @cycle%2d: %40h", t, norm_out_col_core2[t]);
   end
 
 
@@ -678,8 +587,11 @@ for (q = 0; q<total_cycle + 2; q=q+1) begin
     pmem_add_core1 = pmem_add_core1 + 1;
   end
   #0.5 clk = 1'b1;
-  if (q>1)
-    $display("cycle%d, out is %h ", q, out_core1);
+  if (q>1) begin
+    if(out_core1 == multiplication_result_core1[q-2])
+    $display("cycle%d, out is %h, data match :D ", q-1, out_core1);
+    else $display("data does not match, error occurs at %1d", q-1);
+  end
 end
 
 $display("Fectch core2 pmem content");
@@ -691,7 +603,9 @@ for (q = 0; q<total_cycle + 2; q=q+1) begin
   end
   #0.5 clk = 1'b1;
   if (q>1) begin
-    $display("cycle%d, out is %h", q, out_core2);
+    if (out_core2 == multiplication_result_core2[q-2])
+    $display("cycle%d, out is %h, data match :D", q-1, out_core2);
+    else $display("data does not match, error occurs at %1d", q-1);
   end
 end // Successful up to this point
 
