@@ -375,12 +375,19 @@ $display("##### Estimated Normalization result #####");
 $display("##### Qmem writing  #####");
 
   for (q=0; q<total_cycle; q=q+1) begin
-
+    //give one cycle at first
+    
     #0.5 clk = 1'b0;  
     qmem_even_wr_core1 = 1; qmem_even_wr_core2 = 1;  
+    if (q == 0) begin
+      #0.5 clk = 1'b0;
+      #0.5 clk = 1'b1;
+    end
     if (q>0) begin 
       qkmem_add_core1 = qkmem_add_core1 + 1;
       qkmem_add_core2 = qkmem_add_core2 + 1;
+      #0.5 clk = 1'b0;
+      #0.5 clk = 1'b1;
     end
 
     
@@ -425,10 +432,10 @@ $display("##### Qmem writing  #####");
 $display("##### Kmem writing #####");
 
   for (q=0; q<col; q=q+1) begin
-
+    
     #0.5 clk = 1'b0;  
     kmem_even_wr_core1 = 1;
-    kmem_even_wr_core2 = 1; 
+    kmem_even_wr_core2 = 1;
     if (q>0) 
     begin
       qkmem_add_core1 = qkmem_add_core1 + 1;
@@ -477,6 +484,7 @@ $display("##### Kmem writing #####");
 $display("##### K data loading to processor #####");
 
   for (q=0; q<col+1; q=q+1) begin
+    
     #0.5 clk = 1'b0;  
     mac_loadk_core1 = 1;
     mac_loadk_core2 = 1; 
@@ -516,12 +524,12 @@ $display("##### K data loading to processor #####");
 $display("##### execute #####");
 
   for (q=0; q<2* total_cycle +2; q=q+1) begin
+    
     #0.5 clk = 1'b0;  
     mac_exe_core1 = 1;
     mac_exe_core2 = 1; 
     qmem_even_rd_core1 = 1;
     qmem_even_rd_core2 = 1;
-
     if (q>0 && q <8) begin
        qkmem_add_core1 = qkmem_add_core1 + 1;
        qkmem_add_core2 = qkmem_add_core2 + 1;
@@ -555,18 +563,17 @@ $display("##### execute #####");
 
 $display("##### move ofifo to pmem #####");
 
-  for (q=0; q<total_cycle + 1; q=q+1) begin
+  for (q=0; q<total_cycle; q=q+1) begin
+    
     #0.5 clk = 1'b0;  
     ofifo_rd_core1 = 1;
     ofifo_rd_core2 = 1; 
     pmem_wr_core1 = 1;
     pmem_wr_core2 = 1; 
-
-    if (q>0) begin
-       pmem_add_core1 = pmem_add_core1 + 1;
-       pmem_add_core2 = pmem_add_core2 + 1;
-    end
-
+    if (q > 0) begin
+    pmem_add_core1 = pmem_add_core1 + 1;
+    pmem_add_core2 = pmem_add_core2 + 1;
+  end
     #0.5 clk = 1'b1;  
   end
 
@@ -580,12 +587,12 @@ $display("##### move ofifo to pmem #####");
 /////////////////////Verify Multiplication Result////////////////////////////////////
 
 $display("Fectch core1 pmem content");
-for (q = 0; q<total_cycle + 2; q=q+1) begin
+for (q = 0; q<total_cycle +1; q=q+1) begin
+  
   #0.5 clk = 1'b0;
   pmem_rd_core1 = 1;
-  if (q>0 ) begin
-    pmem_add_core1 = pmem_add_core1 + 1;
-  end
+  if (q>0)
+  pmem_add_core1 = pmem_add_core1 + 1;
   #0.5 clk = 1'b1;
   if (q>1) begin
     if(out_core1 == multiplication_result_core1[q-2])
@@ -639,10 +646,14 @@ $display("##### normalize output #####");
   pmem_rd_core1 = 0; pmem_rd_core2 = 0;
   #0.5 clk = 1'b1;
 
-  for (q=0; q<total_cycle;q=q+1) begin // core1 sending data to core2
+  for (q=0; q<total_cycle + 1;q=q+1) begin // core1 sending data to core2
     #0.5 clk = 1'b0;
     fifo_ext_rd_core1 = 1;
     wr_sum_core2 = 1;
+    if (q == 0) begin
+      #0.5 clk = 1'b0;
+      #0.5 clk = 1'b1;
+    end
     #0.5 clk = 1'b1;
   end
 
@@ -651,10 +662,14 @@ $display("##### normalize output #####");
   wr_sum_core2 = 0;
   #0.5 clk = 1'b1;
 
-  for (q=0; q<total_cycle;q=q+1) begin // core2 sending data to core1
+  for (q=0; q<total_cycle + 1;q=q+1) begin // core2 sending data to core1
     #0.5 clk = 1'b0;
     fifo_ext_rd_core2 = 1;
     wr_sum_core1 = 1;
+    if (q == 0) begin
+      #0.5 clk = 1'b0;
+      #0.5 clk = 1'b1;
+    end
     #0.5 clk = 1'b1;
   end
 
@@ -716,16 +731,16 @@ sfp_ififo_wr_core1 = 0; sfp_ififo_wr_core2 = 0;
 
 
   $display("Fetching norm_mem content to double check");
-  for (q=0; q<total_cycle + 2; q=q+1) begin
+  for (q=0; q<total_cycle + 3; q=q+1) begin
     #0.5 clk = 1'b0;
     norm_mem_rd_core1 = 1; norm_mem_rd_core2 = 1;
-    if (q>0) begin
+    if (q>1) begin
       norm_mem_addr_core1 = norm_mem_addr_core1 + 1;
       norm_mem_addr_core2 = norm_mem_addr_core2 + 1;
-      if (q>1) begin
-      if (out_core1 == norm_out_col_core1[q-2] && out_core2 == norm_out_col_core2[q-2]) begin
-        $display("For core 1, cycle %1d, expected out is %h, actual out is %h. Data Match :D",q-1, norm_out_col_core1[q-2], out_core1);
-        $display("For core 2, cycle %1d, expected out is %h, actual out is %h. Data Match :D",q-1, norm_out_col_core2[q-2], out_core2);
+      if (q>2) begin
+      if (out_core1 == norm_out_col_core1[q-3] && out_core2 == norm_out_col_core2[q-3]) begin
+        $display("For core 1, cycle %1d, expected out is %h, actual out is %h. Data Match :D",q-2, norm_out_col_core1[q-3], out_core1);
+        $display("For core 2, cycle %1d, expected out is %h, actual out is %h. Data Match :D",q-2, norm_out_col_core2[q-3], out_core2);
       end
       end
       //else $display("Data does not match, error occurs at cycle %d", q);
