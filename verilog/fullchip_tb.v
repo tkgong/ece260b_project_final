@@ -154,8 +154,8 @@ assign async_interface_wr[1] = wr_sum_core2;
 reg [bw_psum-1:0] temp5b;
 reg [bw_psum+3:0] temp_sum;
 reg [bw_psum*col-1:0] temp16b;
-reg [bw_psum*col-1:0] multiplication_result_core1[total_cycle];
-reg [bw_psum*col-1:0] multiplication_result_core2[total_cycle];
+reg [bw_psum*col-1:0] multiplication_result_core1[total_cycle:0];
+reg [bw_psum*col-1:0] multiplication_result_core2[total_cycle:0];
 reg signed [bw_psum-1:0] temp5b_core1, temp5b_core2;
 reg signed [bw_psum-1:0] abs_temp5b_core1, abs_temp5b_core2;
 reg signed [bw_psum+3:0] temp_sum_core1, temp_sum_core2;
@@ -344,8 +344,6 @@ $display("##### Estimated multiplication result #####");
    // $display("@cycle%2d: core 1 %h, core 2 %h", t, temp16b_core1, temp16b_core2);
     multiplication_result_core1[t] = temp16b_core1;
     multiplication_result_core2[t] = temp16b_core2;
-    //$display("%h,%h", multiplication_result_core1[t], multiplication_result_core2[t]);
-     //$display("sum @cycle:%2d: core1 %8h core2 %8h", t, sum_core1[t], sum_core2[t]);
   end
 
 //////////////////////////////////////////////
@@ -361,8 +359,8 @@ $display("##### Estimated Normalization result #####");
        norm_out_col_core1[t] = {norm_out_col_core1[t][139:0], norm_out_core1[t][q]};
        norm_out_col_core2[t] = {norm_out_col_core2[t][139:0], norm_out_core2[t][q]};
      end
-     //$display("Core1 normalized out @cycle%2d: %40h", t, norm_out_col_core1[t]);
-     //$display("Core2 normalized out @cycle%2d: %40h", t, norm_out_col_core2[t]);
+     $display("Core1 normalized out @cycle%2d: %40h", t, norm_out_col_core1[t]);
+     $display("Core2 normalized out @cycle%2d: %40h", t, norm_out_col_core2[t]);
   end
 
 
@@ -374,20 +372,23 @@ $display("##### Estimated Normalization result #####");
 
 $display("##### Qmem writing  #####");
 
-  for (q=0; q<total_cycle; q=q+1) begin
+  for (q=0; q<total_cycle + 1; q=q+1) begin
     //give one cycle at first
     
     #0.5 clk = 1'b0;  
-    qmem_even_wr_core1 = 1; qmem_even_wr_core2 = 1;  
+    qmem_even_wr_core1 = 1; qmem_even_wr_core2 = 1;
     if (q == 0) begin
-      #0.5 clk = 1'b0;
       #0.5 clk = 1'b1;
+      #0.5 clk = 1'b0;
     end
     if (q>0) begin 
+      #0.5 clk = 1'b1;
+      #0.5 clk = 1'b0;
+      qmem_even_wr_core1 = 0; qmem_even_wr_core2 = 0;
+      #0.5 clk = 1'b1;
+      # 0.5 clk = 1'b0;
       qkmem_add_core1 = qkmem_add_core1 + 1;
       qkmem_add_core2 = qkmem_add_core2 + 1;
-      #0.5 clk = 1'b0;
-      #0.5 clk = 1'b1;
     end
 
     
@@ -431,13 +432,22 @@ $display("##### Qmem writing  #####");
 
 $display("##### Kmem writing #####");
 
-  for (q=0; q<col; q=q+1) begin
+  for (q=0; q<col + 1; q=q+1) begin
     
     #0.5 clk = 1'b0;  
     kmem_even_wr_core1 = 1;
     kmem_even_wr_core2 = 1;
+    if (q == 0) begin
+      #0.5 clk = 1'b1;
+      #0.5 clk = 1'b0;
+    end
     if (q>0) 
     begin
+      #0.5 clk = 1'b1;
+      #0.5 clk = 1'b0;
+      kmem_even_wr_core1 = 0; kmem_even_wr_core2 = 0;
+      #0.5 clk = 1'b1;
+      # 0.5 clk = 1'b0;
       qkmem_add_core1 = qkmem_add_core1 + 1;
       qkmem_add_core2 = qkmem_add_core2 + 1; 
     end
@@ -488,6 +498,10 @@ $display("##### K data loading to processor #####");
     #0.5 clk = 1'b0;  
     mac_loadk_core1 = 1;
     mac_loadk_core2 = 1; 
+    if (q == 0) begin
+      #0.5 clk = 1'b0;
+      #0.5 clk = 1'b1;
+    end
     if (q==1) begin 
       kmem_even_rd_core1 = 1;
       kmem_even_rd_core2 = 1;
@@ -530,6 +544,11 @@ $display("##### execute #####");
     mac_exe_core2 = 1; 
     qmem_even_rd_core1 = 1;
     qmem_even_rd_core2 = 1;
+    if (q == 0) begin
+      #0.5 clk = 1'b0;
+      #0.5 clk = 1'b1;
+    end
+    
     if (q>0 && q <8) begin
        qkmem_add_core1 = qkmem_add_core1 + 1;
        qkmem_add_core2 = qkmem_add_core2 + 1;
@@ -563,18 +582,32 @@ $display("##### execute #####");
 
 $display("##### move ofifo to pmem #####");
 
-  for (q=0; q<total_cycle; q=q+1) begin
-    
-    #0.5 clk = 1'b0;  
-    ofifo_rd_core1 = 1;
-    ofifo_rd_core2 = 1; 
-    pmem_wr_core1 = 1;
-    pmem_wr_core2 = 1; 
+  for (q=0; q<total_cycle + 1; q=q+1) begin
+
+    if (q == 0) begin
+      #0.5 clk = 1'b0;
+      ofifo_rd_core1 = 1;
+      ofifo_rd_core2 = 1; 
+      pmem_wr_core1 = 1;
+      pmem_wr_core2 = 1; 
+      #0.5 clk = 1'b1;
+    end
+
     if (q > 0) begin
-    pmem_add_core1 = pmem_add_core1 + 1;
-    pmem_add_core2 = pmem_add_core2 + 1;
+      #0.5 clk =1'b0;
+      pmem_add_core1 = pmem_add_core1 + 1;
+      pmem_add_core2 = pmem_add_core2 + 1;
+      ofifo_rd_core1 = 0; ofifo_rd_core2 = 0;
+      pmem_wr_core1 = 0; pmem_wr_core2 = 0;
+      #0.5 clk = 1'b1; 
+      #0.5 clk = 1'b0;
+      ofifo_rd_core1 = 1;
+      ofifo_rd_core2 = 1; 
+      pmem_wr_core1 = 1;
+      pmem_wr_core2 = 1;
+      #0.5 clk = 1'b1; 
   end
-    #0.5 clk = 1'b1;  
+
   end
 
   #0.5 clk = 1'b0;  
@@ -587,32 +620,32 @@ $display("##### move ofifo to pmem #####");
 /////////////////////Verify Multiplication Result////////////////////////////////////
 
 $display("Fectch core1 pmem content");
-for (q = 0; q<total_cycle +1; q=q+1) begin
+for (q = 0; q<total_cycle +3; q=q+1) begin
   
   #0.5 clk = 1'b0;
   pmem_rd_core1 = 1;
   if (q>0)
   pmem_add_core1 = pmem_add_core1 + 1;
   #0.5 clk = 1'b1;
-  if (q>1) begin
-    if(out_core1 == multiplication_result_core1[q-2])
-    $display("cycle%d, out is %h, data match :D ", q-1, out_core1);
-    else $display("data does not match, error occurs at %1d", q-1);
+  if (q>2) begin
+    if(out_core1 == multiplication_result_core1[q-3])
+    $display("cycle%d, out is %h, data match :D ", q-2, out_core1);
+    else $display("data does not match, error occurs at %1d", q-2);
   end
 end
 
 $display("Fectch core2 pmem content");
-for (q = 0; q<total_cycle + 2; q=q+1) begin
+for (q = 0; q<total_cycle + 3; q=q+1) begin
   #0.5 clk = 1'b0;
   pmem_rd_core2 = 1;
   if (q>0) begin
     pmem_add_core2 = pmem_add_core2 + 1;
   end
   #0.5 clk = 1'b1;
-  if (q>1) begin
-    if (out_core2 == multiplication_result_core2[q-2])
-    $display("cycle%d, out is %h, data match :D", q-1, out_core2);
-    else $display("data does not match, error occurs at %1d", q-1);
+  if (q>2) begin
+    if (out_core2 == multiplication_result_core2[q-3])
+    $display("cycle%d, out is %h, data match :D", q-2, out_core2);
+    else $display("data does not match, error occurs at %1d", q-2);
   end
 end // Successful up to this point
 
@@ -680,12 +713,13 @@ $display("##### normalize output #####");
   norm_mem_addr_core2 = 0;
   #0.5 clk = 1'b1;
 
-   for (q = 0; q< total_cycle +2;q=q+1) begin // move pmem content to ififo in sfp
+   for (q = 0; q< total_cycle +1;q=q+1) begin // move pmem content to ififo in sfp
     #0.5 clk = 1'b0;
     pmem_rd_core1 = 1; pmem_rd_core2 = 1;
     //sfp_div_core1 = 1; sfp_div_core2 = 1;
-    sfp_ififo_wr_core1 = 1; sfp_ififo_wr_core2 = 1;
+   
     if (q>0) begin
+      sfp_ififo_wr_core1 = 1; sfp_ififo_wr_core2 = 1;
       pmem_add_core1 = pmem_add_core1 + 1;
       pmem_add_core2 = pmem_add_core2 + 1;
     end
@@ -710,11 +744,22 @@ pmem_rd_core1 = 0; pmem_rd_core2 = 0;
 sfp_ififo_wr_core1 = 0; sfp_ififo_wr_core2 = 0;
 #0.5 clk =1'b1;
 
-  for (i = 0; i < total_cycle + 2; i=i+1) begin
+  for (i = 0; i < total_cycle + 3; i=i+1) begin
   #0.5 clk = 1'b0;
 	sfp_div_core1 = 1; sfp_div_core2 = 1;
+  if (i>0) norm_mem_wr_core1 = 0; norm_mem_wr_core2 = 0;
+  #0.5 clk = 1'b1;
+  #0.5 clk = 1'b0;
+  sfp_div_core1 = 0; sfp_div_core2 = 0;
+  pmem_rd_core1 = 1; pmem_rd_core2 = 1;
+  #0.5 clk = 1'b1;
+  for (k = 0; k < 6; k = k + 1) begin
+    #0.5 clk = 1'b0;
+    #0.5 clk = 1'b1;
+  end
+  # 0.5 clk = 1'b0;
 	norm_mem_wr_core1 = 1; norm_mem_wr_core2 = 1;
-	if (i > 2) begin
+	if (i > 0) begin
 		norm_mem_addr_core1 = norm_mem_addr_core1 + 1;
 		norm_mem_addr_core2 = norm_mem_addr_core2 + 1;
 	end
@@ -727,23 +772,25 @@ sfp_ififo_wr_core1 = 0; sfp_ififo_wr_core2 = 0;
   #0.5 clk = 1'b0;
   norm_mem_wr_core1 = 0; norm_mem_wr_core2 = 0;
   norm_mem_addr_core1 = 0; norm_mem_addr_core2 = 0;
+  norm_mem_rd_core1 = 0; norm_mem_rd_core2 = 0;
     #0.5 clk = 1'b1;
 
 
   $display("Fetching norm_mem content to double check");
-  for (q=0; q<total_cycle + 3; q=q+1) begin
+  for (q=0; q<total_cycle + 4; q=q+1) begin
     #0.5 clk = 1'b0;
     norm_mem_rd_core1 = 1; norm_mem_rd_core2 = 1;
     if (q>1) begin
       norm_mem_addr_core1 = norm_mem_addr_core1 + 1;
       norm_mem_addr_core2 = norm_mem_addr_core2 + 1;
-      if (q>2) begin
-      if (out_core1 == norm_out_col_core1[q-3] && out_core2 == norm_out_col_core2[q-3]) begin
-        $display("For core 1, cycle %1d, expected out is %h, actual out is %h. Data Match :D",q-2, norm_out_col_core1[q-3], out_core1);
-        $display("For core 2, cycle %1d, expected out is %h, actual out is %h. Data Match :D",q-2, norm_out_col_core2[q-3], out_core2);
+      if (q>3) begin
+      if (out_core1 == norm_out_col_core1[q-4] && out_core2 == norm_out_col_core2[q-4]) begin
+        $display("For core 1, cycle %1d, expected out is %h, actual out is %h. Data Match :D",q-3, norm_out_col_core1[q-4], out_core1);
+        $display("For core 2, cycle %1d, expected out is %h, actual out is %h. Data Match :D",q-3, norm_out_col_core2[q-4], out_core2);
       end
+        else $display("Data does not match, error occurs at cycle %d", q-2);
       end
-      //else $display("Data does not match, error occurs at cycle %d", q);
+      
       
     end
 

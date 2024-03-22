@@ -37,8 +37,8 @@ core #(.bw(bw), .bw_psum(bw_psum), .col(col), .pr(pr)) core1_instance (
       .clk_ext_core(clk_core2), 
       .mem_in(mem_in_core1), 
       .out(out_core1), 
-      //.inst(inst_core1_reg), 
-      .inst(inst_core1),
+      .inst(inst_core1_reg), 
+      //.inst(inst_core1),
       .reset(reset), 
       .fifo_ext_rd(fifo_ext_rd_core1),
       .sum_in(sum_in_core1),
@@ -51,21 +51,21 @@ core #(.bw(bw), .bw_psum(bw_psum), .col(col), .pr(pr)) core2_instance (
       .clk_ext_core(clk_core1), 
       .mem_in(mem_in_core2), 
       .out(out_core2), 
-      //.inst(inst_core2_reg), 
-      .inst(inst_core2),
+      .inst(inst_core2_reg), 
+      //.inst(inst_core2),
       .reset(reset), 
       .fifo_ext_rd(fifo_ext_rd_core2),
       .sum_in(sum_in_core2),
       .sum_out(sum_out_core2),
       .wr_sum(wr_sum_core2)
 );
-// always @(posedge clk_core1 or posedge reset) begin
-//       if (reset) inst_core1_reg <= 0;
-//       else inst_core1_reg <= inst_core1;
-// end
+always @(posedge clk_core1 or posedge reset) begin
+      if (reset) inst_core1_reg <= 0;
+      else inst_core1_reg <= inst_core1;
+end
 
-// always @(posedge clk_core2 or posedge reset ) begin
-//       if (reset) inst_core2_reg <= 0;
-//       else inst_core2_reg <= inst_core2;
-// end
+always @(posedge clk_core2 or posedge reset ) begin
+      if (reset) inst_core2_reg <= 0;
+      else inst_core2_reg <= inst_core2;
+end
 endmodule
