@@ -201,6 +201,7 @@ sram_152b_w8 norm_mem_instance(
 );
 always @(posedge clk_this_core ) begin
         if (pmem_rd) out_reg <= pmem_out;
-        if (norm_mem_rd) out_reg <= norm_out;
+        else if (norm_mem_rd) out_reg <= norm_out;
+	else out_reg <= out_reg;
 end
 endmodule
